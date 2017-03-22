@@ -1,0 +1,140 @@
+// fill the browser with our glorious website
+body,
+html {
+  height: 100%;
+  width: 100%;
+  background-color: $background-color;
+  font-family: 'Oswald', serif;
+  font-weight: 200;
+}
+
+body {
+  color: $text-color;
+  text-align: center;
+}
+
+h1 { font-size: 3em; }
+h2 { font-size: 2em; }
+h3 { font-size: 1em; }
+h4 { font-size: 0.67em; }
+h5 { font-size: 0.5em; }
+h6 { font-size: 0.35em; }
+
+aside {
+  position: fixed;
+  right: 10px;
+  top: 10px;
+  bottom: 10px;
+}
+
+header {
+  text-align: center;
+  * {
+    display: inline-block;
+  }
+  h1 {
+    padding-right: 10px;
+  }
+
+}
+
+svg {
+  margin: 20px auto;
+
+  .land {
+    fill: $land-color;
+  }
+
+  .ocean {
+    fill: $ocean-color;
+  }
+}
+
+text {
+  fill: $text-color;
+}
+
+.funding {
+  fill: $funding-color;
+}
+
+.families {
+  fill: $families-color;
+}
+
+.edgeObscure {
+  fill: $background-color;
+}
+
+.westerneurope {
+  fill: #1f77b4;
+}
+
+.easterneuropeandcentralasia {
+  fill: #ff7f0e;
+}
+
+.eastasia {
+  fill: #2ca02c;
+}
+
+.middleeast {
+  fill: #d62728;
+}
+
+.latinamerica {
+  fill: #9467bd;
+}
+
+.africa {
+  fill: #8c564b;
+}
+
+.southasia {
+  fill: #e377c2;
+}
+
+.oceania {
+  fill: #7f7f7f;
+}
+
+.canada {
+  fill: #bcbd22;
+}
+
+.WESTERNEUROPE {
+  stroke: #1F77B4;
+}
+
+.EASTERNEUROPEANDCENTRALASIA {
+  stroke: #FF7F0E;
+}
+
+.EASTASIA {
+  stroke: #2CA02C;
+}
+
+.MIDDLEEAST {
+  stroke: #D62728;
+}
+
+.LATINAMERICA {
+  stroke: #9467BD;
+}
+
+.AFRICA {
+  stroke: #8C564B;
+}
+
+.SOUTHASIA {
+  stroke: #E377C2;
+}
+
+.OCEANIA {
+  stroke: #7F7F7F;
+}
+
+.CANADA {
+  stroke: #BCBD22;
+}
+
