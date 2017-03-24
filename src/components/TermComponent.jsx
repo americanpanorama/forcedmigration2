@@ -87,7 +87,7 @@ export default class Term extends React.Component {
 
         <text 
           fontSize="15"
-          transform={ 'rotate(' + this.state.rotate + ',' + this.props.radius + ',' + this.props.radius + ')' }
+          transform={ 'rotate(' + this.state.rotate + ',' + (this.props.radius + 50) + ',' + (this.props.radius + 50) + ')' }
           textAnchor='middle'
         >
           <textPath 
@@ -101,6 +101,8 @@ export default class Term extends React.Component {
             { this.props.president }
           </textPath>
         </text>
+
+
       </g>
     );
   }

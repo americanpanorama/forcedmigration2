@@ -4,19 +4,21 @@ import { AppActionTypes } from '../utils/AppActionCreator';
 import OceansJson from '../../data/oceans.json';
 import DestinationsJson from '../../data/destinations.json';
 import PresidentialTerms from '../../data/terms.json';
+import SOSTerms from '../../data/termsSOS.json';
 import Regions from '../../data/regions.json';
+import RegionsMetadata from '../../data/regionsMetadata.json';
 import * as topojson from 'topojson';
 
 const DataStore = {
 
   data: {
     firstYear: 1905,
-    startDate: '1905-01-01',
+    startDate: '1905-04-03',
     endDate: '2016-12-12',
     years: [...Array(112).keys()].map(num => num+1905),
     tau: 2 * Math.PI,
-    zoomFactor: 3,
-    daysDuration: 40907 // this._dateDiff('1905-01-01', '2016-12-31'),
+    zoomFactor: 5,
+    daysDuration: 40797 // this._dateDiff('1905-01-01', '2016-12-31'),
   },
 
 
@@ -31,6 +33,8 @@ const DataStore = {
   getPresidentialTerms: function() {
     return PresidentialTerms;
   },
+
+  getSOSTerms: function() { return SOSTerms; },
 
   getDestinations: function() {
     return DestinationsJson.features;
@@ -50,6 +54,45 @@ const DataStore = {
   getDestinationsForPresidency: function(id) {
     let term = this.getTerm(id);
     return DestinationsJson.features.filter(destination => destination.properties.date_convert >= term[0] && destination.properties.date_convert <= term[1]);
+  },
+
+  getDestinationsForPresidencyAggregated: function(id) {
+    let theData = [],
+      destinations = this.getDestinationsForPresidency(id);
+
+    destinations.forEach(destination => {
+      let lng = destination.geometry.coordinates[0],
+        lat = destination.geometry.coordinates[1],
+        dataForLocation = theData.filter(location => (lat == location.lat && lng == location.lng));
+
+      if (dataForLocation.length == 0) {
+        theData.push({
+          lat: lat,
+          lng: lng,
+          regionClass: destination.properties.new_region.replace(/ /g,'').toLowerCase(),
+          visits: [
+            destination.properties
+          ]
+        });
+      } else {
+        dataForLocation[0].visits.push(destination.properties);
+      }
+    });
+
+    return theData;
+  },
+
+  getRegionsVisited(id) {
+    return this.getDestinationsForPresidency(id).map(destination => destination.properties.new_region.replace(/ /g,'').toLowerCase()).filter((region, pos, self) => self.indexOf(region) == pos && region !== 'u.s');
+  },
+
+  visitedRegionDuring(region, date1, date2) {
+    DestinationsJson.features.forEach(destination => {
+      if (destination.properties.new_region == region && destination.properties.date_convert >= date1 && destination.properties.date_convert <= date2) {
+        return true;
+      }      
+    });
+    return false;
   },
 
   getDurationofPresidency: function(id) {
@@ -140,6 +183,16 @@ const DataStore = {
     return theData;
   },
 
+  getMaxVisits: function() {
+    let yearCounts = {};
+    DestinationsJson.features.forEach(destination => {
+      let year = parseInt(destination.properties.date_convert.substring(0,4));
+      yearCounts[year] = (yearCounts[year]) ? yearCounts[year] + 1 : 1;
+    });
+
+    return Object.keys(yearCounts).reduce((max, year) => Math.max(yearCounts[year], max), 0);
+  },
+
   getPresidencyArcRadians: function(id, selectedId) {
     let unselectedPercent = this.getDurationofPresidency(id) / this.getDaysDurationUnselected(selectedId);
     return unselectedPercent * Math.PI;
@@ -154,8 +207,19 @@ const DataStore = {
     return PresidentialTerms.filter(presidency => presidency.number == id)[0];
   },
 
+  getPresidentialStartAngle(id, selectedId) {
+    let startDate = (this.getPresidentialData(id).took_office > this.data.startDate) ? this.getPresidentialData(id).took_office : this.data.startDate;
+    return this.getDateAngle(startDate, selectedId);
+  },
+
+  getPresidentialEndAngle(id, selectedId) {
+    let endDate = (this.getPresidentialData(id).left_office < this.data.endDate) ? this.getPresidentialData(id).left_office : this.data.endDate;
+    return this.getDateAngle(endDate, selectedId);
+  },
+
   getDateRotationSelected: function(date, selectedId) {
     let lastSelectedDate = PresidentialTerms.filter(presidency => presidency.number == selectedId)[0].left_office;
+    lastSelectedDate = (lastSelectedDate < this.data.endDate) ? lastSelectedDate : this.data.endDate;
     if (date >= lastSelectedDate) {
       return 90 + this._dateDiff(lastSelectedDate, date) / this.getDaysDurationUnselected(selectedId) * 180;
     } else {
@@ -185,6 +249,8 @@ const DataStore = {
   },
 
   getDateAngleDegrees: function(date, selectedId) { return this.getDateAngle(date, selectedId) / this.data.tau * 360; },
+
+  getRegionMetadata(slug) { return RegionsMetadata.filter(region => region.slug == slug)[0]; },
 
   _dateDiff: function (date1, date2) {
     date1 = (date1 < this.data.startDate) ? this.data.startDate : date1;
