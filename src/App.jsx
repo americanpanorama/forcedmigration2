@@ -73,7 +73,14 @@ class App extends React.Component {
     AppActions.officeholderSelected(id, office);
   }
 
-  onMapPointHover(e) { console.log(e.target.id.split('-'), e.target.id); AppActions.visitsSelected(e.target.id.split('-')); }
+  onMapPointHover(e) { 
+    let ids = (DataStore.getSelectedLocationIds().length==e.target.id.split('-').length && DataStore.getSelectedLocationIds().every((v,i)=> v === e.target.id.split('-')[i])) ? [] : e.target.id.split('-');
+    AppActions.visitsSelected(ids); 
+  }
+
+  clearDetails() {
+    AppActions.visitsSelected([]); 
+  }
 
   onWindowResize() {
     this.setState({
@@ -139,6 +146,12 @@ class App extends React.Component {
               height: this.state.dimensions.detailsHeight
             }}
           >
+            <div
+              className='deselect'
+              onClick={ this.clearDetails }
+            >
+              x
+            </div>
             <h3>
               { DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.city + ', ' + DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.country}
             </h3>
