@@ -31,20 +31,20 @@ export default class AreaGraph extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.selectedId !== nextProps.selectedId) {
-      d3.select(ReactDOM.findDOMNode(this))
-        .transition()
-        .duration(750)
-        .attrTween('d', (d) => (t) => this.props.area.angle((d,i) => d3.interpolate(this.state.angles[i], nextProps.angles[i])(t))(this.props.data) )
-        .each('end', () => {
-          this.setState({
-            angles: nextProps.angles
-          });
+    d3.select(ReactDOM.findDOMNode(this))
+      .transition()
+      .duration(750)
+      .attrTween('d', (d) => (t) => this.props.area.angle((d,i) => d3.interpolate(this.state.angles[i], nextProps.angles[i])(t))(this.props.data) )
+      .each('end', () => {
+        this.setState({
+          angles: nextProps.angles
         });
-    }
+      });
   }
 
   render() {
+
+
 
     return (
       <path

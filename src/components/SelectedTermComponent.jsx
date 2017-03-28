@@ -17,7 +17,6 @@ export default class SelectedTerm extends React.Component {
 
   constructor (props) {
     super(props);
-    let middleAngle = (this.props.startAngle + this.props.endAngle) / 2;
     this.state = {
       d: this.props.graphArc.startAngle(this.props.startAngle).endAngle(this.props.endAngle)()
     };

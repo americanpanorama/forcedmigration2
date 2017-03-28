@@ -40,6 +40,11 @@ header {
 
 svg {
   margin: 0px auto;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  pointer-events: none;
 
   .land {
     fill: $land-color;
@@ -52,14 +57,6 @@ svg {
 
 text {
   fill: $text-color;
-}
-
-.funding {
-  fill: $funding-color;
-}
-
-.families {
-  fill: $families-color;
 }
 
 .edgeObscure {
@@ -77,37 +74,30 @@ text {
 }
 
 .eastasia {
-  fill-opacity: 0.7;
   fill: #2ca02c;
 }
 
 .middleeast {
-  fill-opacity: 0.7;
   fill: #a387be;
 }
 
 .latinamerica {
-  fill-opacity: 0.7;
   fill: #cfe272;
 }
 
 .africa {
-  fill-opacity: 0.7;
   fill: #ef33a2;
 }
 
 .southasia {
-  fill-opacity: 0.7;
   fill: #b98a6f;
 }
 
 .oceania {
-  fill-opacity: 0.7;
   fill: lighten(#db4f54, 20%);
 }
 
 .canada {
-  fill-opacity: 0.7;
   fill: #bcbd22;
 }
 
@@ -151,3 +141,37 @@ text {
   fill: transparent;
 }
 
+.details {
+  position: fixed;
+  text-align: left;
+  overflow: scroll;
+
+  h3 {
+    font-size: 2em;
+  }
+
+  ul {
+    padding-bottom: 40px;
+    list-style: none;
+
+    li {
+      padding-bottom: 5px;
+      border-bottom: 1px solid #ddd;
+      margin-left: 3px;
+    }
+  }
+}
+
+.destination {
+  pointer-events: auto;
+  fill-opacity: 0.7;
+
+  &.selected {
+    stroke: white;
+    stroke-width: 1;
+  }
+
+  &.unselected {
+    fill-opacity: 0.2;
+  }
+}

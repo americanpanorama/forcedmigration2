@@ -20,7 +20,7 @@ export default class Term extends React.Component {
     this.state = {
       startAngle: this.props.startAngle,
       endAngle: this.props.endAngle,
-      rotate: this.props.rotate,
+      rotate: (this.props.startAngle / Math.PI + (this.props.endAngle - this.props.startAngle) / (Math.PI * 2)) * 180,
       color: this.props.color
     };
   }
@@ -60,12 +60,12 @@ export default class Term extends React.Component {
         .transition()
         .duration(750)
         .attrTween('transform', (d,i,a) => {
-          let interpolate = d3.interpolate(this.state.rotate, nextProps.rotate);
+          let interpolate = d3.interpolate(this.state.rotate, (this.props.startAngle / Math.PI + (this.props.endAngle - this.props.startAngle) / (Math.PI * 2)) * 180);
           return (t) => { return 'rotate(' + interpolate(t) + ',' + this.props.radius + ',' + this.props.radius + ')'; };
         })
         .each('end', () => {
           this.setState({
-            rotate: nextProps.rotate,
+            rotate: (this.props.startAngle / Math.PI + (this.props.endAngle - this.props.startAngle) / (Math.PI * 2)) * 180
           });
         });
     }
@@ -76,33 +76,24 @@ export default class Term extends React.Component {
       <g key={'termArc' + this.props.id}>
         <path
           d={ this.props.theArc.startAngle(this.state.startAngle).endAngle(this.state.endAngle)() }
-          fill={ this.state.color }
-          fillOpacity={ 0.7 }
           transform={ 'translate(' + this.props.radius + ',' + this.props.radius + ')' }
           id={ this.props.id }
-          onClick={ this.props.onPresidencySelected }
-          stroke='#666699'
-          strokeWidth={ 0.5 }
+          onClick={ this.props.onOfficeholderSelected }
+          className={ (this.props.selected) ? 'selected' : '' }
         />
 
         <text 
-          fontSize="15"
-          transform={ 'rotate(' + this.state.rotate + ',' + (this.props.radius + 50) + ',' + (this.props.radius + 50) + ')' }
-          textAnchor='middle'
+          transform={ 'rotate(' + this.state.rotate + ',' + this.props.radius + ',' + this.props.radius + ')' }
+          className={ (this.props.selected) ? 'selected' : '' }
         >
           <textPath 
-            xlinkHref="#arcSegment" 
-
-            fill={ (this.props.selected) ? 'black' : 'white' }
-
+            xlinkHref={this.props.textHref} 
             startOffset='50%'
             pointerEvents='none'
           >
-            { this.props.president }
+            { this.props.label }
           </textPath>
         </text>
-
-
       </g>
     );
   }
