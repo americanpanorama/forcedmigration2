@@ -79,7 +79,7 @@ export default class Term extends React.Component {
           transform={ 'translate(' + this.props.radius + ',' + this.props.radius + ')' }
           id={ this.props.id }
           onClick={ this.props.onOfficeholderSelected }
-          className={ (this.props.selected) ? 'selected' : '' }
+          className={ ((this.props.selected) ? 'selected' : '') + ((this.props.visited) ? ' visited' : '') }
         />
 
         <text 

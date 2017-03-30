@@ -20,7 +20,7 @@ const DataStore = {
     endDate: '2015-12-12',
     years: [...Array(111).keys()].map(num => num+1905),
     tau: 2 * Math.PI,
-    zoomFactor: 5,
+    zoomFactor: 10,
     daysDuration: 40797, // this._dateDiff('1905-01-01', '2016-12-31'),
     selectedOffice: 'president',
     selectedId: 44,
@@ -48,12 +48,14 @@ const DataStore = {
     destinations.forEach(destination => {
       let lng = destination.geometry.coordinates[0],
         lat = destination.geometry.coordinates[1],
+        cityId = destination.properties.city_id,
         dataForLocation = theData.filter(location => (lat == location.lat && lng == location.lng));
 
       if (dataForLocation.length == 0) {
         theData.push({
           lat: lat,
           lng: lng,
+          cityId: cityId,
           regionClass: destination.properties.new_region.replace(/ /g,'').toLowerCase(),
           visits: [
             destination.properties
@@ -128,6 +130,15 @@ const DataStore = {
     this.data.selectedId = id;
     this.data.selectedOffice = office;
 
+    // if there are selected visits, see if the new selection visited the same place
+    if (this.data.selectedLocationIds.length > 0) {
+      let city_id = this.getDestinationDetails(this.data.selectedLocationIds)[0].properties.city_id,
+        theDestination = this.getDestinationsForSelected().filter(destination => destination.cityId == city_id),
+        destinationIds = (theDestination.length > 0) ? theDestination[0].visits.map(visit => visit.cartodb_id) : [];
+
+      this.data.selectedLocationIds = destinationIds;
+    }
+
     this.emit(AppActionTypes.storeChanged);
   },
 
@@ -154,9 +165,11 @@ const DataStore = {
 
   getDestinationsByYear: function() { return (this.data.selectedOffice == 'president') ? this.data.presidentialDestinationsByYear : this.data.sosDestinationsByYear; },
 
-  getDestinationDetails: function(ids) { return ids.map(id => this.getDestination(id)); },
+  getDestinationDetails: function(ids) { return ids.map(id => this.getDestination(id)).sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1); },
 
   getDestination: function(id) { return DestinationsJson.features.filter(destination => destination.properties.cartodb_id == id)[0]; },
+
+  getCityIdForSelected: function() { return (this.data.selectedLocationIds.length > 0) ? this.getDestinationDetails(this.data.selectedLocationIds)[0].properties.city_id : false; } ,
 
   getPresidentialTerms: function() {
     return PresidentialTerms.map((presidency, i) => {
@@ -176,7 +189,7 @@ const DataStore = {
 
   getDateAngle: function(date) {
     let adjustedDuration = this.data.daysDuration + (this.data.zoomFactor - 1) * this.getDuration(this.data.selectedId, this.data.selectedOffice),
-      legendAngle = this.data.tau * 0.05,
+      legendAngle = this.data.tau * 0.075,
       nonlegendAngle = this.data.tau - legendAngle;
 
     if (this.dateBeforeSelected(date)) {
@@ -204,6 +217,21 @@ const DataStore = {
     return years;
   },
 
+  monthsForSelected: function() {
+    let months = [];
+    for (let year = this.yearsForSelected()[0]; year <= this.yearsForSelected()[this.yearsForSelected().length - 1]; year++) {
+      for (let monthNum=1; monthNum <= 12; monthNum++) {
+        let month = ('0' + monthNum).slice(-2),
+          firstDate = year + '-' + month + '-01',
+          lastDate = year + '-' + month + '-' + (new Date(2015, monthNum - 1, 0)).getDate();
+        if (this.dateDuringSelected(firstDate) || this.dateDuringSelected(lastDate)) {
+          months.push(year + '-' + month);
+        }
+      }
+    }
+    return months;
+  },
+
   isSelectedYear(year) { return this.yearsForSelected().indexOf(year) !== -1; },
 
   getDuration: function(id, office) {
@@ -229,7 +257,38 @@ const DataStore = {
 
   getDestinationsForSelected: function() { return this._parseDestinationsByLocation(this.getSimplifiedDestinationsForSelected()); },
 
-  getSimplifiedDestinationsForSelected: function() { return DestinationsJson.features.filter(destination => this.dateDuringSelected(destination.properties.date_convert) && destination.properties.position.toLowerCase() == this.data.selectedOffice); },
+  getSimplifiedDestinationsForSelected: function() { return DestinationsJson.features.filter(destination => this.dateDuringSelected(destination.properties.date_convert) && destination.properties.position.toLowerCase() == this.data.selectedOffice).sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1); },
+
+  getSimplifiedDestinationsForOfficeholder: function(id, office) {
+    let term = this.getTerm(id, office);
+    return DestinationsJson.features.filter(destination => destination.properties.date_convert >= term[0] && destination.properties.date_convert <= term[1] && destination.properties.position.toLowerCase() == this.data.selectedOffice).sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1);
+  },
+
+  getNextDestinationIdSelected: function() {
+    let destinations = this.getSimplifiedDestinationsForSelected(),
+      nextId = destinations.findIndex(destination => destination.properties.cartodb_id == this.data.selectedLocationIds[0]) + 1;
+    return (destinations[nextId]) ? destinations[nextId].properties.cartodb_id : null;
+  },
+
+  getPreviousDestinationIdSelected: function() {
+    let destinations = this.getSimplifiedDestinationsForSelected(),
+      previousId = destinations.findIndex(destination => destination.properties.cartodb_id == this.data.selectedLocationIds[0]) - 1;
+    return (destinations[previousId]) ? destinations[previousId].properties.cartodb_id : null;
+  },
+
+  getOfficeholdersWhoVisited(cityId) {
+    let visitors = [],
+      visitsToCity = DestinationsJson.features.filter(destination => destination.properties.city_id == cityId);
+    visitsToCity.forEach(destination => {
+      let visitor = destination.properties.position.toLowerCase() + '-' + destination.properties.pres_id;
+      if (visitors.indexOf(visitor) == -1) {
+        visitors.push(visitor);
+      }
+    });
+    return visitors;
+  },
+
+  getOfficeholdersWhoVisitedSelected() { return this.getOfficeholdersWhoVisited(this.getCityIdForSelected()); },
 
   getRegionsVisited() { 
     return this.getSimplifiedDestinationsForSelected().map(destination => destination.properties.new_region.replace(/ /g,'').toLowerCase()).filter((region, pos, self) => self.indexOf(region) == pos && region !== 'u.s'); 
@@ -241,6 +300,18 @@ const DataStore = {
         year: year,
         startAngle: this.getDateAngle(year + '-01-01'),
         endAngle: this.getDateAngle((year+1) + '-01-01')
+      };
+    });
+  },
+
+  getMonthsSelectedWithAngles() {
+    return this.monthsForSelected().map(month => {
+      return {
+        year: parseInt(month.split('-')[0]),
+        month: parseInt(month.split('-')[1]),
+        monthName: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][parseInt(month.split('-')[1]) -1],
+        startAngle: this.getDateAngle(month + '-01'),
+        endAngle: this.getDateAngle(month + '-' + (new Date(2015, parseInt(month.split('-')[1]) - 1, 0)).getDate())
       };
     });
   },
@@ -336,6 +407,7 @@ DataStore.dispatchToken = AppDispatcher.register((action) => {
   case AppActionTypes.parseData:
     DataStore.parseData();
     DataStore.setSelected(action.id, action.office);
+    DataStore.setSelectedVisits(action.visits);
     break;
   case AppActionTypes.officeholderSelected:
     DataStore.setSelected(action.id, action.office);

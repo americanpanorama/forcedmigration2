@@ -27,9 +27,10 @@ class App extends React.Component {
   }
 
   componentWillMount () { 
-    let office = (Object.keys(HashManager.getState())[0]) ? Object.keys(HashManager.getState())[0] : 'president',
-      id = (Object.keys(HashManager.getState())[0]) ? HashManager.getState()[Object.keys(HashManager.getState())[0]] : 44;
-    AppActions.parseData(id, office); 
+    let office = (Object.keys(HashManager.getState()).indexOf('sos') !== -1) ? 'sos' : 'president',
+      id = (HashManager.getState()[office]) ? (HashManager.getState()[office]) : 44,
+      visits = (HashManager.getState().visits) ? HashManager.getState().visits.split('-') : [];
+    AppActions.parseData(id, office, visits); 
   }
 
   componentDidMount () {
@@ -43,7 +44,6 @@ class App extends React.Component {
 
   getDefaultState () {
     return {
-      presidency: (HashManager.getState().presidency) ? HashManager.getState().presidency : 44,
       dimensions: this.calculateDimensions()
     };
   }
@@ -93,6 +93,7 @@ class App extends React.Component {
       office = DataStore.getSelectedOffice();
     hash['president'] = (office == 'president') ? DataStore.getSelectedId() : null;
     hash['sos'] = (office == 'sos') ? DataStore.getSelectedId() : null;
+    hash['visits'] = DataStore.getSelectedLocationIds().join('-');
     HashManager.updateHash(hash);
   }
 
@@ -112,6 +113,7 @@ class App extends React.Component {
   }
 
   render () {
+    console.log(DataStore.getMonthsSelectedWithAngles());
     return (
       <div>
         <svg
@@ -139,33 +141,72 @@ class App extends React.Component {
 
           <div 
             className='details'
-            style= {{
-              top: this.state.dimensions.detailsTop,
-              left: this.state.dimensions.detailsLeft,
-              width: this.state.dimensions.detailsWidth,
-              height: this.state.dimensions.detailsHeight
-            }}
+            key={ 'visits' + DataStore.getSelectedLocationIds().join('-') }
           >
             <div
-              className='deselect'
-              onClick={ this.clearDetails }
+              className='controls'
+              style= {{
+                top: this.state.dimensions.detailsTop,
+                left: this.state.dimensions.detailsLeft,
+                width: this.state.dimensions.detailsWidth,
+                height: 20
+              }}
+
+              
             >
-              x
+              { (DataStore.getPreviousDestinationIdSelected()) ?
+                <span 
+                  onClick={ this.onMapPointHover }
+                  id={ DataStore.getPreviousDestinationIdSelected() }
+                > 
+                  { '<' }
+                </span> :
+                ''
+              }
+
+              { (DataStore.getNextDestinationIdSelected()) ?
+                <span 
+                  onClick={ this.onMapPointHover }
+                  id={ DataStore.getNextDestinationIdSelected() }
+                > 
+                  { '>' }
+                </span> :
+                ''
+              }
+              
+              <span onClick={ this.clearDetails }>
+                x
+              </span>
             </div>
-            <h3>
-              { DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.city + ', ' + DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.country}
-            </h3>
-            <ul>
-            { DataStore.getDestinationDetails(DataStore.getSelectedLocationIds()).map((destination, i) => {
-              return (
-                <li key={ 'detail' + i }>
-                  { destination.properties.date_convert + ((destination.properties.position == 'SOS') ? ' | Secretary of State ' : ' | President ') +  destination.properties.pres_sos }
-                  <br />
-                  { destination.properties.remarks }
-                </li>
-              );
-            })}
-            </ul>
+            <div
+              className='destinations'
+              style= {{
+                top: this.state.dimensions.detailsTop + 20,
+                left: this.state.dimensions.detailsLeft,
+                width: this.state.dimensions.detailsWidth,
+                height: this.state.dimensions.detailsHeight
+              }}
+            >
+              <h3>
+                { DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.city + ', ' + DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.country}
+              </h3>
+              <h4>
+                { ((DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.position == 'SOS') ? 'Secretary of State ' : 'President ')  + DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.pres_sos}
+              </h4>
+              <ul>
+              { DataStore.getDestinationDetails(DataStore.getSelectedLocationIds()).map((destination, i) => {
+                let d = new Date(destination.properties.date_convert.substring(0,10)),
+                  date = d.toLocaleString('en-us', { month: "long" }) + ' ' + d.getDate() + ', ' + d.getFullYear();
+                return (
+                  <li key={ 'detail' + i }>
+                    { date }
+                    <br />
+                    { destination.properties.remarks }
+                  </li>
+                );
+              })}
+              </ul>
+            </div>
           </div> :
           ''
 
@@ -180,6 +221,10 @@ class App extends React.Component {
             <path 
               id='yearSegment'
               d={ this._makeArc(-70, this.state.dimensions.radius) }
+            />
+            <path 
+              id='monthSegment'
+              d={ this._makeArc(-100, this.state.dimensions.radius) }
             />
             <path 
               id='arcSegment'

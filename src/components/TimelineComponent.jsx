@@ -37,6 +37,10 @@ export default class Timeline extends React.Component {
       .innerRadius(this.props.dimensions.radius + 60)
       .outerRadius(this.props.dimensions.radius + 90);
 
+    var monthArc = d3.svg.arc()
+      .innerRadius(this.props.dimensions.radius + 90)
+      .outerRadius(this.props.dimensions.radius + 120);
+
     return (
       <g>
         <text 
@@ -73,6 +77,7 @@ export default class Timeline extends React.Component {
                 selected={ isSelected } 
                 id={ 'president-' + presidency.number }
                 onOfficeholderSelected={ this.props.onOfficeholderSelected }
+                visited={ DataStore.getOfficeholdersWhoVisitedSelected().indexOf('president-' + presidency.number) !== -1 }
                 label={ presidency.president }
                 radius={ this.props.dimensions.radius }
                 textHref={ '#arcSegment' }
@@ -113,9 +118,9 @@ export default class Timeline extends React.Component {
             >
               <Term
                 theArc={ yearArc }
-                startAngle={ yearData.startAngle + 0.001 }
-                endAngle={ yearData.endAngle - 0.001}
-                color={ 'transparent' }
+                startAngle={ yearData.startAngle - 0.001 }
+                endAngle={ yearData.endAngle + 0.001 }
+                color={ '#111133' }
                 label={ (yearData.year % 4 == 0 || DataStore.isSelectedYear(yearData.year)) ? yearData.year : '|' }
                 radius={ this.props.dimensions.radius }
                 textHref={ '#yearSegment' }
@@ -124,7 +129,25 @@ export default class Timeline extends React.Component {
           );
         }) }
 
-
+        { DataStore.getMonthsSelectedWithAngles().map((monthData) => {
+          return (
+            <ReactTransitionGroup
+              key={ 'month' + monthData.year + monthData.month }
+              component='g' 
+              className='months' 
+            >
+              <Term
+                theArc={ monthArc }
+                startAngle={ monthData.startAngle - 0.001 }
+                endAngle={ monthData.endAngle + 0.001 }
+                color={ '#111133' }
+                label={ (monthData.month % 3 == 0) ? monthData.monthName.substring(0,3) : '' }
+                radius={ this.props.dimensions.radius }
+                textHref={ '#monthSegment' }
+              />
+            </ReactTransitionGroup>
+          );
+        }) }
       </g>
     );
   }

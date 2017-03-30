@@ -51,10 +51,14 @@ export default class SteamGraph extends React.Component {
                 <AreaGraph
                   data={ region.values }
                   area={ area }
+                  radiusStack={ radiusStack }
                   selectedId={ DataStore.getSelectedId() }
                   region={region.key}
                   key={'area' + region.key}
                   angles={ region.values.map(yearData => DataStore.getDateAngle(yearData.year + '-12-31'))}
+                  ys={ region.values.map(yearData=>yearData.y) }
+                  y0s={ region.values.map(yearData=>yearData.y0) }
+                  dimensions={ this.props.dimensions }
                 />
               );
             }) }   

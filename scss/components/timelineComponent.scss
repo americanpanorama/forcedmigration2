@@ -10,6 +10,10 @@
       &.selected {
         fill: gold;
       }
+
+      &.visited {
+
+      }
     }
 
     text {
@@ -27,7 +31,23 @@
 
 .years {
   path {
-    fill: transparent;
+    fill: $background-color;
+    fill-opacity: 0;
+    stroke: white;
+    stroke-width: 0.0;
+  }
+
+  text {
+    font-size: 13px;
+    text-anchor: middle;
+    fill-opacity: 0.7;
+  }
+}
+
+.months {
+  path {
+    fill: $background-color;
+    fill-opacity: 0;
     stroke: white;
     stroke-width: 0.0;
   }
