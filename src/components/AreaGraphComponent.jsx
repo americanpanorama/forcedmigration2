@@ -35,7 +35,7 @@ export default class AreaGraph extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let offsetBase = 94;
+    let offsetBase = 60;
     let radiusStack = d3.scale.linear()
       .domain([0, DataStore.getMaxVisits()])
       .range([this.props.dimensions.radius+offsetBase, this.props.dimensions.widthHeight/2 - 5]);

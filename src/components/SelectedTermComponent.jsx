@@ -50,7 +50,7 @@ export default class SelectedTerm extends React.Component {
     return (
       <path
         d={ this.state.d }
-        fill={ '#111133' }
+        fill={ this.props.fill }
         fillOpacity={ 0.9 }
         transform={ 'translate(' + this.props.radius + ',' + this.props.radius + ')' }
       /> 

@@ -236,7 +236,11 @@ class App extends React.Component {
             />
             <path 
               id='titleArcSegment'
-              d={ this._makeArc(10, this.state.dimensions.widthHeight / 2) }
+              d={ this._makeArc(70, this.state.dimensions.widthHeight / 2) }
+            />
+            <path 
+              id='subtitleArcSegment'
+              d={ this._makeArc(100, this.state.dimensions.widthHeight / 2) }
             />
           </defs>
 
@@ -261,10 +265,10 @@ class App extends React.Component {
           <text 
             fill='white'
             stroke='transparent'
-            fontSize="40"
-            textAnchor='end'
+            fontSize="30"
+            textAnchor='middle'
           >
-            <textPath xlinkHref="#titleArcSegment" startOffset='77%'>
+            <textPath xlinkHref="#titleArcSegment" startOffset='50%'>
               The Executive Abroad
             </textPath>
           </text>
@@ -272,10 +276,10 @@ class App extends React.Component {
           <text 
             fill='white'
             stroke='transparent'
-            fontSize="30"
-            textAnchor='start'
+            fontSize="22"
+            textAnchor='middle'
           >
-            <textPath xlinkHref="#titleArcSegment" startOffset='78%'>
+            <textPath xlinkHref="#subtitleArcSegment" startOffset='50%'>
               1905-2016
             </textPath>
           </text>

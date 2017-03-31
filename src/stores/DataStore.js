@@ -316,6 +316,8 @@ const DataStore = {
     });
   },
 
+  getMaxDistance() { return DestinationsJson.features.reduce((a,b) => Math.max(a,b.properties.distance), 0); },
+
   visitedRegionDuring(region, date1, date2) {
     DestinationsJson.features.forEach(destination => {
       if (destination.properties.new_region == region && destination.properties.date_convert >= date1 && destination.properties.date_convert <= date2) {

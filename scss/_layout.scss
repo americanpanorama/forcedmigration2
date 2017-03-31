@@ -184,9 +184,8 @@ svg {
 
   .controls {
     position: fixed;
-    text-align: left;
     overflow-y: scroll;
-    text-align: right;
+    text-align: left;
 
     span {
       padding: 0 4px;
@@ -200,6 +199,10 @@ svg {
   pointer-events: auto;
   fill-opacity: 0.7;
 
+  &.timeline {
+    fill-opacity: 0.5;
+  }
+
   &.selected {
     stroke: white;
     stroke-width: 1;
@@ -208,4 +211,10 @@ svg {
   &.unselected {
     fill-opacity: 0.2;
   }
+}
+
+.distanceTicks {
+  stroke: $background-color;
+  fill: transparent;
+  stroke-width: 3;
 }

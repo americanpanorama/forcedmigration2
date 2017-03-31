@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom';
 import ReactTransitionGroup from 'react-addons-transition-group';
 
 import Term from './TermComponent.jsx';
+import YearTick from './YearTickComponent.jsx';
 
 import DataStore from '../stores/DataStore.js';
 
@@ -42,7 +43,7 @@ export default class Timeline extends React.Component {
       .outerRadius(this.props.dimensions.radius + 120);
 
     return (
-      <g>
+      <g transform={'rotate(0 ' + this.props.dimensions.radius + ',' + this.props.dimensions.radius + ')'}>
         <text 
           fontSize="15"
           textAnchor='middle'
@@ -116,7 +117,7 @@ export default class Timeline extends React.Component {
               component='g' 
               className='years' 
             >
-              <Term
+              {/* JSX Comment <Term
                 theArc={ yearArc }
                 startAngle={ yearData.startAngle - 0.001 }
                 endAngle={ yearData.endAngle + 0.001 }
@@ -124,12 +125,20 @@ export default class Timeline extends React.Component {
                 label={ (yearData.year % 4 == 0 || DataStore.isSelectedYear(yearData.year)) ? yearData.year : '|' }
                 radius={ this.props.dimensions.radius }
                 textHref={ '#yearSegment' }
+              />*/}
+
+              <YearTick
+                yearData={ yearData }
+                dimensions={ this.props.dimensions }
+                label= { (yearData.year % 4 == 0) ? yearData.year : '' }
               />
+
+
             </ReactTransitionGroup>
           );
         }) }
 
-        { DataStore.getMonthsSelectedWithAngles().map((monthData) => {
+        {/* DataStore.getMonthsSelectedWithAngles().map((monthData) => {
           return (
             <ReactTransitionGroup
               key={ 'month' + monthData.year + monthData.month }
@@ -147,7 +156,7 @@ export default class Timeline extends React.Component {
               />
             </ReactTransitionGroup>
           );
-        }) }
+        }) */}
       </g>
     );
   }
