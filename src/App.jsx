@@ -12,6 +12,7 @@ import Timeline from './components/TimelineComponent.jsx';
 import Steamgraph from './components/SteamgraphComponent.jsx';
 
 import DataStore from './stores/DataStore';
+import DimensionsStore from './stores/DimensionsStore';
 import HashManager from './stores/HashManager';
 
 // main app container
@@ -50,7 +51,11 @@ class App extends React.Component {
 
   calculateDimensions() {
     let widthHeight = Math.min(window.innerHeight, window.innerWidth),
-      mapProportion = 2/3;
+      mapProportion = 2/3,
+      ringProportion = 1/3,
+      termsProportion = 1/18,
+      graphProportion = 3/18,
+      yearProportion = 2/18;
     return {
       widthHeight: widthHeight,
       diameter: widthHeight * mapProportion,
@@ -60,7 +65,19 @@ class App extends React.Component {
       detailsTop: window.innerHeight / 2 + widthHeight * mapProportion /2 *  0.1,
       detailsLeft: window.innerWidth / 2 - widthHeight * mapProportion /2 *  0.6,
       detailsWidth: widthHeight * mapProportion / 2 * 0.5,
-      detailsHeight: widthHeight * mapProportion / 2 * 0.9
+      detailsHeight: widthHeight * mapProportion / 2 * 0.9,
+      termRingsWidth: widthHeight * ringProportion / 12,
+      graphWidth: widthHeight * ringProportion / 6,
+      yearRingWidth: widthHeight * ringProportion / 6,
+      sosInnerRadius: widthHeight * mapProportion / 2,
+      sosOuterRadius: widthHeight * (mapProportion + termsProportion) / 2,
+      presInnerRadius: widthHeight * (mapProportion + termsProportion) / 2,
+      presOuterRadius: widthHeight * (mapProportion + termsProportion + termsProportion) / 2,
+      graphInnerRadius: widthHeight * (mapProportion + termsProportion + termsProportion) / 2,
+      graphOuterRadius: widthHeight * (mapProportion + termsProportion + termsProportion + graphProportion) / 2,
+      yearTickInnerRadius: widthHeight * (mapProportion + termsProportion + termsProportion) / 2,
+      yearTickOuterRadius: widthHeight * (mapProportion + termsProportion + termsProportion + graphProportion) / 2,
+      yearLabelInnerRadius: widthHeight * (mapProportion + termsProportion + termsProportion + graphProportion) / 2
     };
   }
 
@@ -86,6 +103,7 @@ class App extends React.Component {
     this.setState({
       dimensions: this.calculateDimensions()
     });
+    AppActions.windowResized();
   }
 
   changeHash () {
@@ -113,29 +131,10 @@ class App extends React.Component {
   }
 
   render () {
-    console.log(DataStore.getMonthsSelectedWithAngles());
     return (
       <div>
-        <svg
-          width={ this.state.dimensions.widthHeight }
-          height={ this.state.dimensions.widthHeight }
-        > 
 
-          
-          <g transform={'translate(' + this.state.dimensions.ringWidth + ',' + this.state.dimensions.ringWidth + ')' }>
-
-            <TheMap
-              dimensions={ this.state.dimensions }
-              onHover={ this.onMapPointHover }
-            />
-
-          />
-
-          </g>
-   
-
-
-        </svg>
+        <TheMap onHover={ this.onMapPointHover } />
 
         { (DataStore.getSelectedLocationIds().length > 0) ? 
 
@@ -214,45 +213,43 @@ class App extends React.Component {
         }
 
         <svg
-          width={ this.state.dimensions.widthHeight }
-          height={ this.state.dimensions.widthHeight }
+          width={ DimensionsStore.getWidthHeight() }
+          height={ DimensionsStore.getWidthHeight() }
         > 
           <defs>
             <path 
               id='yearSegment'
-              d={ this._makeArc(-70, this.state.dimensions.radius) }
+              d={ this._makeArc(-70, DimensionsStore.getRadius()) }
             />
             <path 
               id='monthSegment'
-              d={ this._makeArc(-100, this.state.dimensions.radius) }
+              d={ this._makeArc(-100, DimensionsStore.getRadius()) }
             />
             <path 
               id='arcSegment'
-              d={ this._makeArc(-40, this.state.dimensions.radius) }
+              d={ this._makeArc(-40, DimensionsStore.getRadius()) }
             />
             <path 
               id='sosSegment'
-              d={ this._makeArc(-10, this.state.dimensions.radius) }
+              d={ this._makeArc(-10, DimensionsStore.getRadius()) }
             />
             <path 
               id='titleArcSegment'
-              d={ this._makeArc(70, this.state.dimensions.widthHeight / 2) }
+              d={ this._makeArc(70, DimensionsStore.getWidthHeight() / 2) }
             />
             <path 
               id='subtitleArcSegment'
-              d={ this._makeArc(100, this.state.dimensions.widthHeight / 2) }
+              d={ this._makeArc(100, DimensionsStore.getWidthHeight() / 2) }
             />
           </defs>
 
-          <g transform={'translate(' + this.state.dimensions.ringWidth + ',' + this.state.dimensions.ringWidth + ')' }>
+          <g transform={'translate(' + DimensionsStore.getTimelineWidth() + ',' + DimensionsStore.getTimelineWidth() + ')' }>
 
             <Timeline 
               onOfficeholderSelected = { this.onOfficeholderSelected }
-              dimensions = { this.state.dimensions }
             />
 
             <Steamgraph
-              dimensions={ this.state.dimensions }
               onHover={ this.onMapPointHover }
             />
 

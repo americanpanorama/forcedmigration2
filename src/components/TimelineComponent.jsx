@@ -9,6 +9,7 @@ import Term from './TermComponent.jsx';
 import YearTick from './YearTickComponent.jsx';
 
 import DataStore from '../stores/DataStore.js';
+import DimensionsStore from '../stores/DimensionsStore.js';
 
 // utils
 // TODO: refactor to use same structure as PanoramaDispatcher;
@@ -26,24 +27,8 @@ export default class Timeline extends React.Component {
   }
 
   render() {
-    var termsArc = d3.svg.arc()
-      .innerRadius(this.props.dimensions.radius + 30)
-      .outerRadius(this.props.dimensions.radius + 60);
-
-    var sosArc = d3.svg.arc()
-      .innerRadius(this.props.dimensions.radius)
-      .outerRadius(this.props.dimensions.radius + 30);
-
-    var yearArc = d3.svg.arc()
-      .innerRadius(this.props.dimensions.radius + 60)
-      .outerRadius(this.props.dimensions.radius + 90);
-
-    var monthArc = d3.svg.arc()
-      .innerRadius(this.props.dimensions.radius + 90)
-      .outerRadius(this.props.dimensions.radius + 120);
-
     return (
-      <g transform={'rotate(0 ' + this.props.dimensions.radius + ',' + this.props.dimensions.radius + ')'}>
+      <g transform={'rotate(0 ' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')'}>
         <text 
           fontSize="15"
           textAnchor='middle'
@@ -72,7 +57,7 @@ export default class Timeline extends React.Component {
               className='terms' 
             >
               <Term
-                theArc={ termsArc }
+                theArc={ DimensionsStore.getPresArc() }
                 startAngle={ presidency.startAngle  }
                 endAngle={ presidency.endAngle }
                 selected={ isSelected } 
@@ -80,7 +65,7 @@ export default class Timeline extends React.Component {
                 onOfficeholderSelected={ this.props.onOfficeholderSelected }
                 visited={ DataStore.getOfficeholdersWhoVisitedSelected().indexOf('president-' + presidency.number) !== -1 }
                 label={ presidency.president }
-                radius={ this.props.dimensions.radius }
+                radius={ DimensionsStore.getRadius() }
                 textHref={ '#arcSegment' }
               />
             </ReactTransitionGroup>
@@ -96,14 +81,14 @@ export default class Timeline extends React.Component {
               className='terms' 
             >
               <Term
-                theArc={ sosArc }
+                theArc={ DimensionsStore.getSOSArc() }
                 startAngle={ sos.startAngle  }
                 endAngle={ sos.endAngle }
                 selected={ isSelected }
                 id={ 'sos-' + sos.number }
                 onOfficeholderSelected={ this.props.onOfficeholderSelected }
                 label={ sos.name.split(' ').splice(-1) }
-                radius={ this.props.dimensions.radius }
+                radius={ DimensionsStore.getRadius() }
                 textHref={ '#sosSegment' }
               />
             </ReactTransitionGroup>
@@ -117,46 +102,13 @@ export default class Timeline extends React.Component {
               component='g' 
               className='years' 
             >
-              {/* JSX Comment <Term
-                theArc={ yearArc }
-                startAngle={ yearData.startAngle - 0.001 }
-                endAngle={ yearData.endAngle + 0.001 }
-                color={ '#111133' }
-                label={ (yearData.year % 4 == 0 || DataStore.isSelectedYear(yearData.year)) ? yearData.year : '|' }
-                radius={ this.props.dimensions.radius }
-                textHref={ '#yearSegment' }
-              />*/}
-
               <YearTick
                 yearData={ yearData }
-                dimensions={ this.props.dimensions }
                 label= { (yearData.year % 4 == 0) ? yearData.year : '' }
               />
-
-
             </ReactTransitionGroup>
           );
         }) }
-
-        {/* DataStore.getMonthsSelectedWithAngles().map((monthData) => {
-          return (
-            <ReactTransitionGroup
-              key={ 'month' + monthData.year + monthData.month }
-              component='g' 
-              className='months' 
-            >
-              <Term
-                theArc={ monthArc }
-                startAngle={ monthData.startAngle - 0.001 }
-                endAngle={ monthData.endAngle + 0.001 }
-                color={ '#111133' }
-                label={ (monthData.month % 3 == 0) ? monthData.monthName.substring(0,3) : '' }
-                radius={ this.props.dimensions.radius }
-                textHref={ '#monthSegment' }
-              />
-            </ReactTransitionGroup>
-          );
-        }) */}
       </g>
     );
   }

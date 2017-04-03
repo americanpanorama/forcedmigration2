@@ -10,8 +10,7 @@ import { AppActions, AppActionTypes } from '../utils/AppActionCreator';
 import AppDispatcher from '../utils/AppDispatcher';
 
 import DataStore from '../stores/DataStore.js';
-
-
+import DimensionsStore from '../stores/DimensionsStore.js';
 
 // main app container
 export default class DestinationTimeline extends React.Component {
@@ -20,8 +19,8 @@ export default class DestinationTimeline extends React.Component {
     super(props);
     this.state = {
       angle: this.props.angle,
-      cx: this.props.dimensions.radius + this._distance()(this.props.destination.properties.distance) * Math.sin(this.props.angle),
-      cy: this.props.dimensions.radius - this._distance()(this.props.destination.properties.distance) * Math.cos(this.props.angle),
+      cx: DimensionsStore.getTimelineDestinationX(this.props.angle, this.props.destination.properties.distance),
+      cy: DimensionsStore.getTimelineDestinationY(this.props.angle, this.props.destination.properties.distance),
     };
   }
 
@@ -29,34 +28,21 @@ export default class DestinationTimeline extends React.Component {
     d3.select(ReactDOM.findDOMNode(this))
       .transition()
       .duration(750)
-      .attrTween('cx', (d) => (t) => { console.log(this.props.dimensions.radius + this._distance()(this.props.destination.properties.distance) * Math.sin(d3.interpolate(this.props.originAngle, this.props.angle)(t))); return this.props.dimensions.radius + this._distance()(this.props.destination.properties.distance) * Math.sin(d3.interpolate(this.props.originAngle, this.props.angle)(t));})
-      .attrTween('cy', (d) => (t) => this.props.dimensions.radius - this._distance()(this.props.destination.properties.distance) * Math.cos(d3.interpolate(this.props.originAngle, this.props.angle)(t)))
+      .attrTween('cx', (d) => (t) => DimensionsStore.getTimelineDestinationX(d3.interpolate(this.props.originAngle, this.props.angle)(t), this.props.destination.properties.distance))
+      .attrTween('cy', (d) => (t) => DimensionsStore.getTimelineDestinationY(d3.interpolate(this.props.originAngle, this.props.angle)(t), this.props.destination.properties.distance))
       .each('end', () => {
         this.setState({
           angle: this.props.angle,
-          cx: this.props.dimensions.radius + this._distance()(this.props.destination.properties.distance) * Math.sin(this.props.angle),
-          cy: this.props.dimensions.radius - this._distance()(this.props.destination.properties.distance) * Math.cos(this.props.angle)
+          cx: DimensionsStore.getTimelineDestinationX(this.props.angle, this.props.destination.properties.distance),
+          cy: DimensionsStore.getTimelineDestinationY(this.props.angle, this.props.destination.properties.distance),
         });
         callback();
-      });
-    
+      }); 
   }
 
-  componentWillLeave(callback) {
-    callback();
-  }
+  componentWillLeave(callback) { callback(); }
 
-
-
-  componentWillReceiveProps(nextProps) {
-
-  }
-
-  _distance() {
-    return d3.scale.linear()
-      .domain([0, DataStore.getMaxDistance()])
-      .range([this.props.dimensions.radius+60, this.props.dimensions.widthHeight/2 - 35]);
-  }
+  componentWillReceiveProps(nextProps) { }
 
   render() {
     return (

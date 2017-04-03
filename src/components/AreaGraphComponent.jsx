@@ -3,59 +3,55 @@ import d3 from 'd3';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 
-// utils
-// TODO: refactor to use same structure as PanoramaDispatcher;
-// Having `flux` as a dependency, and two different files, is overkill.
-import { AppActions, AppActionTypes } from '../utils/AppActionCreator';
-import AppDispatcher from '../utils/AppDispatcher';
-
 import DataStore from '../stores/DataStore.js';
+import DimensionsStore from '../stores/DimensionsStore.js';
 
-
-
-// main app container
 export default class AreaGraph extends React.Component {
 
   constructor (props) {
     super(props);
     this.state = {
-      d: this.props.area(this.props.data),
-      angles: this.props.angles,
-      ys: this.props.ys,
-      y0s: this.props.y0s
+      angles: props.angles,
+      ys: props.ys,
+      y0s: props.y0s,
+      d: this._area()(props.values)
     };
   }
 
-  componentWillEnter(callback) {
-    callback();
-  }
+  componentWillEnter(callback) { callback(); }
 
-  componentWillLeave(callback) {
-    callback();
-  }
+  componentWillLeave(callback) { callback(); }
 
   componentWillReceiveProps(nextProps) {
-    let offsetBase = 60;
     let radiusStack = d3.scale.linear()
       .domain([0, DataStore.getMaxVisits()])
-      .range([this.props.dimensions.radius+offsetBase, this.props.dimensions.widthHeight/2 - 5]);
-
-
+      .range([DimensionsStore.getGraphInnerRadius(), DimensionsStore.getGraphOuterRadius()]);
 
     d3.select(ReactDOM.findDOMNode(this))
       .transition()
       .duration(750)
-      //.innerRadius((d,i) => this.props.radiusStack(d3.interpolate(this.state.ys[i], nextProps.ys[i])(t))).outerRadius((d,i) => this.props.radiusStack(d3.interpolate(this.state.y0s[i], nextProps.y0s[i])(t)))
-      .attrTween('d', (d) => (t) => this.props.area.angle((d,i) => d3.interpolate(this.state.angles[i], nextProps.angles[i])(t)).innerRadius((d,i) => { return radiusStack(d3.interpolate(this.state.y0s[i], nextProps.y0s[i])(t)); }).outerRadius((d,i) => radiusStack(d3.interpolate(this.state.y0s[i] + this.state.ys[i], nextProps.y0s[i] + nextProps.ys[i])(t)))(this.props.data) )
-      .each('end', () => {
-        this.setState({
-          angles: nextProps.angles,
-          ys: this.props.ys,
-          y0s: this.props.y0s,
-          d: this.props.area(nextProps.data)
-        });
-      });
+      .attrTween('d', (d) => (t) => this._area().angle((d,i) => d3.interpolate(this.state.angles[i], nextProps.angles[i])(t)).innerRadius((d,i) => { return radiusStack(d3.interpolate(this.state.y0s[i], nextProps.y0s[i])(t)); }).outerRadius((d,i) => radiusStack(d3.interpolate(this.state.y0s[i] + this.state.ys[i], nextProps.y0s[i] + nextProps.ys[i])(t)))(this.props.values) )
+      .each('end', () => this.setState({
+        angles: nextProps.angles,
+        ys: nextProps.ys,
+        y0s: nextProps.y0s,
+        d: this._area()(nextProps.values)
+      }));
   }
+
+
+  _area() {
+    var radiusStack = d3.scale.linear()
+      .domain([0, DataStore.getMaxVisits()])
+      .range([DimensionsStore.getGraphInnerRadius(), DimensionsStore.getGraphOuterRadius()]);
+
+    return d3.svg.area.radial()
+      .interpolate('cardinal-open')
+      .tension([0.7])
+      .angle(d => DataStore.getDateAngle(d.year + '-01-01'))
+      .innerRadius(d => radiusStack(d.y0))
+      .outerRadius(d => radiusStack(d.y0+d.y));
+  } 
 
   render() {
     return (
