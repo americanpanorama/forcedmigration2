@@ -34,7 +34,7 @@ export default class YearTick extends React.Component {
       .duration(750)
       .attrTween('x', (d) => (t) => DimensionsStore.getTimelineLabelX(d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t)))
       .attrTween('y', (d) => (t) => DimensionsStore.getTimelineLabelY(d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t)))
-      .attrTween('transform', (d) => (t) => 'rotate(' + (d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t)/Math.PI * 180 + (d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t) > Math.PI ? 90 : 270)) + ' ' + DimensionsStore.getTimelineLabelX(d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t)) + ' ' + DimensionsStore.getTimelineLabelY(d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t)) + ')')
+      .attrTween('transform', (d) => (t) => 'rotate(' + (d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t)/Math.PI * 180 + ((d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t) + DataStore.getTimelineRotationRadians()) % (Math.PI * 2) > Math.PI ? 90 : 270)) + ' ' + DimensionsStore.getTimelineLabelX(d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t)) + ' ' + DimensionsStore.getTimelineLabelY(d3.interpolate(this.state.yearData.startAngle, nextProps.yearData.startAngle)(t)) + ')')
       .each('end', () => {
         this.setState({
           yearData: nextProps.yearData
@@ -61,7 +61,7 @@ export default class YearTick extends React.Component {
           textAnchor='start'
           fontSize={ DimensionsStore.getTimelineLabelSize() }
           alignmentBaseline='middle'
-          transform={'rotate(' + (this.state.yearData.startAngle/Math.PI * 180 + (this.state.yearData.startAngle > Math.PI ? 90 : 270)) + ' ' + DimensionsStore.getTimelineLabelX(this.state.yearData.startAngle) + ' ' + DimensionsStore.getTimelineLabelY(this.state.yearData.startAngle) + ')'}
+          transform={'rotate(' + (this.state.yearData.startAngle/Math.PI * 180 + ((this.state.yearData.startAngle + DataStore.getTimelineRotationRadians()) % (Math.PI * 2) > Math.PI  ? 90 : 270)) + ' ' + DimensionsStore.getTimelineLabelX(this.state.yearData.startAngle) + ' ' + DimensionsStore.getTimelineLabelY(this.state.yearData.startAngle) + ')'}
         >
           { this.props.label }
         </text>

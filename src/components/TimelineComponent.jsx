@@ -16,7 +16,7 @@ export default class Timeline extends React.Component {
   constructor (props) { 
     super(props); 
     this.state = {
-      rotate: props.rotate
+      rotate: DataStore.getTimelineRotation()
     };
   }
 
@@ -24,9 +24,9 @@ export default class Timeline extends React.Component {
     d3.select(ReactDOM.findDOMNode(this)).select('g')
       .transition()
       .duration(750)
-      .attrTween('transform', (d) => (t) => 'translate(' + DimensionsStore.getTimelineWidth() + ',' + DimensionsStore.getTimelineWidth() + ') rotate(' + d3.interpolate(this.state.rotate, nextProps.rotate)(t) + ' ' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' )
+      .attrTween('transform', (d) => (t) => 'translate(' + DimensionsStore.getTimelineWidth() + ',' + DimensionsStore.getTimelineWidth() + ') rotate(' + d3.interpolate(this.state.rotate, DataStore.getTimelineRotation())(t) + ' ' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' )
       .each('end', () => this.setState({
-        rotate: nextProps.rotate
+        rotate: DataStore.getTimelineRotation()
       }));
   }
 

@@ -105,7 +105,7 @@ const DimensionsStore = {
       left: window.innerWidth / 2 - this.getRadius() *  0.6,
       width: this.getRadius() * 0.5,
       height: this.getRadius() * 0.9,
-      fontSize: this.getTermWidth() / 2.5
+      fontSize: this.getTermWidth() / 2
     };
   },
 

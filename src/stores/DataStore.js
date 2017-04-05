@@ -395,8 +395,9 @@ const DataStore = {
 
   getRegionMetadata(slug) { return RegionsMetadata.filter(region => region.slug == slug)[0]; },
 
+  getTimelineRotation: function() { return 360 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2 / Math.PI * 180; }, 
 
-
+  getTimelineRotationRadians: function() { return Math.PI * 2 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2; }, 
 };
 
 // Mixin EventEmitter functionality

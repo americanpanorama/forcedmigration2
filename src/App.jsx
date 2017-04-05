@@ -87,17 +87,9 @@ class App extends React.Component {
         }
 
         <ReactTransitionGroup component='g'>
-          <Steamgraph 
-            onHover={ this.onMapPointHover } 
-            rotate={ 360 - (DataStore.getOfficeholderEndAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) + DataStore.getOfficeholderStartAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice())) / 2 / Math.PI * 180 }
-          />
-          <Timeline 
-            onOfficeholderSelected = { this.onOfficeholderSelected } 
-            rotate={ 360 - (DataStore.getOfficeholderEndAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) + DataStore.getOfficeholderStartAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice())) / 2 / Math.PI * 180 }
-          />
+          <Steamgraph onHover={ this.onMapPointHover } />
+          <Timeline onOfficeholderSelected = { this.onOfficeholderSelected } />
         </ReactTransitionGroup>
-
-        
 
         <Title />
 
