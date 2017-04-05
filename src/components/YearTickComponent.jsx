@@ -3,12 +3,6 @@ import d3 from 'd3';
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 
-// utils
-// TODO: refactor to use same structure as PanoramaDispatcher;
-// Having `flux` as a dependency, and two different files, is overkill.
-import { AppActions, AppActionTypes } from '../utils/AppActionCreator';
-import AppDispatcher from '../utils/AppDispatcher';
-
 import DataStore from '../stores/DataStore.js';
 import DimensionsStore from '../stores/DimensionsStore.js';
 
@@ -22,13 +16,9 @@ export default class YearTick extends React.Component {
     };
   }
 
-  componentWillEnter(callback) {
-    callback();
-  }
+  componentWillEnter(callback) { callback(); }
 
-  componentWillLeave(callback) {
-    callback();
-  }
+  componentWillLeave(callback) {callback(); }
 
   componentWillReceiveProps(nextProps) {
     d3.select(ReactDOM.findDOMNode(this)).select('line')
@@ -69,6 +59,7 @@ export default class YearTick extends React.Component {
           y = { DimensionsStore.getTimelineLabelY(this.state.yearData.startAngle) }
           fill= '#446'
           textAnchor='start'
+          fontSize={ DimensionsStore.getTimelineLabelSize() }
           alignmentBaseline='middle'
           transform={'rotate(' + (this.state.yearData.startAngle/Math.PI * 180 + (this.state.yearData.startAngle > Math.PI ? 90 : 270)) + ' ' + DimensionsStore.getTimelineLabelX(this.state.yearData.startAngle) + ' ' + DimensionsStore.getTimelineLabelY(this.state.yearData.startAngle) + ')'}
         >

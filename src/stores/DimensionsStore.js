@@ -11,12 +11,16 @@ const DimensionsStore = {
   data: {
     mapProportion: 2/3,
     ringProportion: 1/3,
-    termsProportion: 1/18,
+    termsProportion: 3/54,
     graphProportion: 3/18,
-    yearProportion: 2/18
+    yearProportion: 2/18,
+    titleOffset: 1/9
   },
 
-  calculate: function(dimension) { this.data.widthHeight = dimension; },
+  calculate: function(dimension) { 
+    this.data.widthHeight = dimension; 
+    this.emit(AppActionTypes.storeChanged);
+  },
 
   getWidthHeight: function() { return this.data.widthHeight; },
 
@@ -48,9 +52,9 @@ const DimensionsStore = {
 
   getTimelineDestinationY: function(angle, distance) { return this.getRadius() - this.getDestinationDistance(distance) * Math.cos(angle); },
 
-  getTimelineTickOuterRadius: function() { return this.getTimelineLabelRadius() - 4; },
+  getTimelineTickOuterRadius: function() { return this.getRadius() + this.getTermWidth() * 2 + this.getGraphWidth(); },
 
-  getTimelineLabelRadius: function() { return this.getRadius() + this.getTermWidth() * 2 + this.getGraphWidth(); },
+  getTimelineLabelRadius: function() { return this.getRadius() + this.getTermWidth() * 2.5 + this.getGraphWidth(); },
 
   getGraphInnerRadius: function() { return this.getPresOuterRadius(); },
 
@@ -59,6 +63,56 @@ const DimensionsStore = {
   getTermWidth: function() { return (this.data.widthHeight * this.data.termsProportion) / 2; },
 
   getGraphWidth: function() { return (this.data.widthHeight * this.data.graphProportion) / 2; },
+
+  getTermsLabelSize: function() { return this.getTermWidth() / 2; },
+
+  getSVGArc(padding, radius) { return 'M ' + padding + ',' + radius + ' A ' + (radius-padding) + ',' + (radius-padding) + ' 0 0, 1 ' + (radius*2 - padding) + ',' + radius; },
+
+  getSOSLabelArc() { return this.getSVGArc(this.getTermWidth() / -4, this.getRadius()); },
+
+  getPresLabelArc() { return this.getSVGArc(this.getTermWidth() * -1.25, this.getRadius()); },
+
+  getTitleLabelArc() { return this.getSVGArc(-1 * (this.getTermWidth() * 2 + this.getGraphWidth() + this.data.titleOffset * this.data.widthHeight / 2), this.getRadius()); },
+
+  getTitleSize: function() { return this.getTermWidth(); },
+
+  getSubtitleSize: function() { return this.getTermWidth() * 0.75; },
+
+  getTimelineLabelSize: function() { return this.getTermWidth() / 3; },
+
+  getRegionLabelSize: function() { return this.getTermWidth() / 2.5; },
+
+  getDetailsControlStyle: function() {
+    return {
+      top: window.innerHeight / 2 + this.getRadius() *  0.1,
+      left: window.innerWidth / 2 - this.getRadius() *  0.6,
+      width: this.getRadius() * 0.5,
+      height: this.getTermWidth() ,
+      fontSize: this.getTermWidth() / 2
+    };
+  },
+
+  getDetailsStyle: function() {
+    return {
+      top: window.innerHeight / 2 + this.getRadius() *  0.1 + this.getTermWidth(),
+      left: window.innerWidth / 2 - this.getRadius() *  0.6,
+      width: this.getRadius() * 0.5,
+      height: this.getRadius() * 0.9,
+      fontSize: this.getTermWidth() / 2.5
+    };
+  },
+
+  getDetailsDestinationStyle: function() {
+    return {
+      fontSize: this.getTermWidth() / 1.5
+    };
+  },
+
+  getDetailsOfficeholderStyle: function() {
+    return {
+      fontSize: this.getTermWidth() / 2
+    };
+  },
 
   getSOSArc: function () {
     return d3.svg.arc()

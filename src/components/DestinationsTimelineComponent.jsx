@@ -51,7 +51,7 @@ export default class DestinationTimeline extends React.Component {
         cy={ this.state.cy }
         r={ 4 }
         className={ 'destination ' + this.props.destination.properties.new_region.replace(/ /g,'').toLowerCase() + ((this.props.selected) ? ' selected' : '') + ((this.props.unselected) ? ' unselected' : '')}
-        onClick={ this.props.onClick }
+        onMouseEnter={ this.props.onClick }
         id={ this.props.destination.properties.cartodb_id }
         key={ 'destinationRing' + this.props.destination.properties.cartodb_id }
       />

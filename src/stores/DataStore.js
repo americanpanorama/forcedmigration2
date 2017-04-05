@@ -7,7 +7,6 @@ import PresidentialTerms from '../../data/terms.json';
 import SOSTerms from '../../data/termsSOS.json';
 import Regions from '../../data/regions.json';
 import RegionsMetadata from '../../data/regionsMetadata.json';
-import * as topojson from 'topojson';
 
 import d3 from 'd3';
 

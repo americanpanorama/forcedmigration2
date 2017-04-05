@@ -87,7 +87,7 @@ export default class Map extends React.Component {
               y={ DimensionsStore.getRadius() }
               fill='#eee'
               fillOpacity={0.5}
-              fontSize={12}
+              fontSize={ DimensionsStore.getRegionLabelSize() }
               alignmentBaseline='hanging'
 
             >
@@ -99,7 +99,7 @@ export default class Map extends React.Component {
                 <text
                   x={ projection(DataStore.getRegionMetadata(slug).latlng)[0] }
                   y={ projection(DataStore.getRegionMetadata(slug).latlng)[1] }
-                  fontSize={12}
+                  fontSize={ DimensionsStore.getRegionLabelSize() }
                   textAnchor={ DataStore.getRegionMetadata(slug).textAnchor }
                   alignmentBaseline={ DataStore.getRegionMetadata(slug).alignmentBaseline }
                   className={ slug }

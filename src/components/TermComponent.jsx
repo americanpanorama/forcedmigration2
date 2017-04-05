@@ -5,12 +5,7 @@ import ReactDOM from 'react-dom';
 
 import ReactTransitionGroup from 'react-addons-transition-group';
 
-// utils
-// TODO: refactor to use same structure as PanoramaDispatcher;
-// Having `flux` as a dependency, and two different files, is overkill.
-import { AppActions, AppActionTypes } from '../utils/AppActionCreator';
-import AppDispatcher from '../utils/AppDispatcher';
-
+import DimensionsStore from '../stores/DimensionsStore.js';
 
 // main app container
 export default class Term extends React.Component {
@@ -85,11 +80,13 @@ export default class Term extends React.Component {
         <text 
           transform={ 'rotate(' + this.state.rotate + ',' + this.props.radius + ',' + this.props.radius + ')' }
           className={ (this.props.selected) ? 'selected' : '' }
+
         >
           <textPath 
             xlinkHref={this.props.textHref} 
             startOffset='50%'
             pointerEvents='none'
+            fontSize={ DimensionsStore.getTermsLabelSize() }
           >
             { this.props.label }
           </textPath>

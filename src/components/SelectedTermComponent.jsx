@@ -51,8 +51,10 @@ export default class SelectedTerm extends React.Component {
       <path
         d={ this.state.d }
         fill={ this.props.fill }
-        fillOpacity={ 0.9 }
+        fillOpacity={ 1 }
         transform={ 'translate(' + this.props.radius + ',' + this.props.radius + ')' }
+        stroke='#85C7F2'
+        strokeWidth={ 1 }
       /> 
     );
   }

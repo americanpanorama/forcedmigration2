@@ -17,14 +17,6 @@ body {
 ::-webkit-scrollbar-track {  background-color: transparent;}
 ::-webkit-scrollbar-thumb { height: 50px; background-color: rgba(100, 100, 100, 0.2); border-radius: 0.5px;}
 
-
-h1 { font-size: 3em; }
-h2 { font-size: 2em; }
-h3 { font-size: 1em; }
-h4 { font-size: 0.67em; }
-h5 { font-size: 0.5em; }
-h6 { font-size: 0.35em; }
-
 aside {
   position: fixed;
   right: 10px;
@@ -157,12 +149,10 @@ svg {
     overflow-y: scroll;
 
     h3 {
-      font-size: 2em;
       margin: 0;
     }
 
     h4 {
-      font-size: 1.2em;
       margin-top: 0;
     }
 
@@ -217,4 +207,10 @@ svg {
   stroke: $background-color;
   fill: transparent;
   stroke-width: 3;
+}
+
+svg.titleImage {
+  text {
+    fill: $text-color;
+  }
 }

@@ -1,6 +1,6 @@
 .terms {
     path {
-      fill: #333355;
+      fill: $term-color;
       fill-opacity: 1;
       stroke: #666699;
       stroke-width: 0.5;
@@ -8,7 +8,7 @@
       cursor: default;
 
       &.selected {
-        fill: gold;
+        fill: $selected-term-color;
       }
 
       &.visited {
@@ -17,9 +17,7 @@
     }
 
     text {
-      font-size: 13px;
       text-anchor: middle;
-      fill-opacity: 0.7;
 
       &.selected {
         fill: black;
@@ -38,7 +36,6 @@
   }
 
   text {
-    font-size: 13px;
     text-anchor: middle;
     fill-opacity: 0.7;
   }
@@ -53,7 +50,6 @@
   }
 
   text {
-    font-size: 13px;
     text-anchor: middle;
     fill-opacity: 0.7;
   }
