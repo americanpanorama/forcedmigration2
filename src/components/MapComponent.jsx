@@ -62,7 +62,7 @@ export default class Map extends React.Component {
                 <circle
                   cx={ projection([destination.lng, destination.lat])[0] }
                   cy={ projection([destination.lng, destination.lat])[1] }
-                  r={ 3* Math.sqrt(destination.visits.length) }
+                  r={ DimensionsStore.getPointRadius(destination.visits.length) }
                   fillOpacity={0.5}
                   className={ 'destination ' + destination.regionClass + ((selected) ? ' selected' : '') + ((!selected && DataStore.hasSelectedLocation()) ? ' unselected' : '')} 
                   id={ id }

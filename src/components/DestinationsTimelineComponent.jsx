@@ -49,7 +49,7 @@ export default class DestinationTimeline extends React.Component {
       <circle
         cx={ this.state.cx }
         cy={ this.state.cy }
-        r={ 4 }
+        r={ DimensionsStore.getPointRadius() }
         className={ 'destination ' + this.props.destination.properties.new_region.replace(/ /g,'').toLowerCase() + ((this.props.selected) ? ' selected' : '') + ((this.props.unselected) ? ' unselected' : '')}
         onMouseEnter={ this.props.onClick }
         id={ this.props.destination.properties.cartodb_id }

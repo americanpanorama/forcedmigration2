@@ -14,7 +14,8 @@ const DimensionsStore = {
     termsProportion: 3/54,
     graphProportion: 3/18,
     yearProportion: 2/18,
-    titleOffset: 1/9
+    titleOffset: 1/9,
+    pointPercentOfRadius: .01
   },
 
   calculate: function(dimension) { 
@@ -81,6 +82,12 @@ const DimensionsStore = {
   getTimelineLabelSize: function() { return this.getTermWidth() / 3; },
 
   getRegionLabelSize: function() { return this.getTermWidth() / 2.5; },
+
+  getPointRadius: function(num) { 
+    num = (num) ? num : 1;
+    let radius = Math.sqrt(num * this.data.pointPercentOfRadius * this.getRadius() * this.data.pointPercentOfRadius * this.getRadius());
+    return radius; 
+  },
 
   getDetailsControlStyle: function() {
     return {
