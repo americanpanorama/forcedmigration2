@@ -6,12 +6,30 @@
   #about-bg{
     fill: #999;
     fill-opacity: 1;
-    pointer-events: auto;
+
+    text {
+
+    }
+  }
+  #about-close {
+    position: fixed;
+    color: $background-color;
   }
   #about-content {
     position: relative;
-    color: $text-color;
+    color: black;
     text-align: left;
-    padding: 20px 20px 20px 0;
+
+    a {
+      color: $background-color;
+    }
+
+    p {
+       font-family: Merriweather, serif;
+    }
   }
+}
+
+.aboutLink {
+  pointer-events: auto;
 }

@@ -112,7 +112,8 @@ const DimensionsStore = {
       left: window.innerWidth / 2 - this.getRadius() *  0.6,
       width: this.getRadius() * 0.4,
       height: window.innerHeight * 0.7,
-      fontSize: this.getTermWidth() / 2
+      fontSize: this.getTermWidth() / 2,
+      paddingBottom: this.getTermWidth() * 3
     };
   },
 
@@ -121,7 +122,20 @@ const DimensionsStore = {
       marginTop: this.getRadius() * Math.sin(Math.PI/-4),
       marginLeft: this.getRadius() * Math.sin(Math.PI/-4),
       marginBottom: this.getRadius(),
-      width: 2 *  this.getRadius() * Math.sin(Math.PI/4)
+      width: 2 *  this.getRadius() * Math.sin(Math.PI/4) - this.getTermWidth() * 2,
+      paddingTop: this.getTermWidth() * 2,
+      paddingLeft: this.getTermWidth(),
+      paddingRight: this.getTermWidth(),
+      fontSize: (this.getTermWidth() / 2 > 14) ? this.getTermWidth() / 2 : 14
+    };
+  },
+
+  getAboutCloseStyle: function() {
+    return {
+      marginTop: this.getRadius() * Math.sin(Math.PI/-4),
+      marginLeft: this.getRadius() * Math.sin(Math.PI/4),
+      paddingTop: this.getTermWidth() * 2,
+      fontSize: (this.getTermWidth() / 2 > 14) ? this.getTermWidth() / 2 : 14
     };
   },
 

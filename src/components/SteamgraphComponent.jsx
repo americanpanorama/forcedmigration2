@@ -44,9 +44,18 @@ export default class SteamGraph extends React.Component {
         width={ DimensionsStore.getWidthHeight() }
         height={ DimensionsStore.getWidthHeight() }
       > 
+        {/* masks to obscure details */}
+        <rect
+          x={ 0 }
+          y={ DimensionsStore.getWidthHeight() / 2 + DimensionsStore.getRadius() }
+          width={ DimensionsStore.getWidthHeight() }
+          height={ DimensionsStore.getWidthHeight() - (DimensionsStore.getWidthHeight() / 2 + DimensionsStore.getRadius()) }
+          className='timelineMask'
+
+        />
         <g transform={'translate(' + DimensionsStore.getTimelineWidth() + ',' + DimensionsStore.getTimelineWidth() + ') rotate(' + this.state.rotate + ' ' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')'}>
 
-            {/* mask to obscure details */}
+            {/* masks to obscure details */}
             <circle
               cx={DimensionsStore.getRadius()}
               cy={DimensionsStore.getRadius()}
@@ -54,6 +63,8 @@ export default class SteamGraph extends React.Component {
               strokeWidth={ DimensionsStore.getTimelineWidth() }
               className='timelineMask'
             /> 
+
+
 
             {/* tick marks for distance */}
             { [10, 7.5, 5, 2.5].map(milesAway => {

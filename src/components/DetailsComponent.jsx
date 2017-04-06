@@ -25,24 +25,25 @@ export default class Details extends React.Component {
               onClick={ this.props.onSelectDestination }
               id={ DataStore.getPreviousDestinationIdSelected() }
             > 
-              { '<' }
+              { 'previous' }
             </span> :
             ''
           }
+
+          <span onClick={ this.props.onSelectDestination } id=''>
+            close
+          </span>
 
           { (DataStore.getNextDestinationIdSelected()) ?
             <span 
               onClick={ this.props.onSelectDestination }
               id={ DataStore.getNextDestinationIdSelected() }
             > 
-              { '>' }
+              { 'next' }
             </span> :
             ''
           }
-          
-          <span onClick={ this.props.clearDetails }>
-            x
-          </span>
+
         </div>
         <div
           className='destinations'
@@ -51,9 +52,10 @@ export default class Details extends React.Component {
           <h3 style= { DimensionsStore.getDetailsDestinationStyle() }>
             { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.city + ', ' + DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.country}
           </h3>
-          <h4 style= { DimensionsStore.getDetailsOfficeholderStyle() }>
+        {/* <h4 style= { DimensionsStore.getDetailsOfficeholderStyle() }>
             { ((DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.position == 'SOS') ? 'Secretary of State ' : 'President ')  + DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.pres_sos}
-          </h4>
+          </h4> */}
+          
           <ul>
           { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds()).map((destination, i) => {
             let d = new Date(destination.properties.date_convert.substring(0,10)),
@@ -62,7 +64,7 @@ export default class Details extends React.Component {
               <li key={ 'detail' + i }>
                 { date }
                 <br />
-                { destination.properties.remarks }
+                <span className='description'>{ destination.properties.remarks }</span>
               </li>
             );
           })}

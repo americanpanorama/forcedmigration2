@@ -13,6 +13,7 @@ import Timeline from './components/TimelineComponent.jsx';
 import Steamgraph from './components/SteamgraphComponent.jsx';
 import Title from './components/TitleComponent.jsx';
 import About from './components/AboutComponent.jsx';
+import AboutLink from './components/AboutLinkComponent.jsx';
 
 import DataStore from './stores/DataStore';
 import DimensionsStore from './stores/DimensionsStore';
@@ -65,14 +66,12 @@ class App extends React.Component {
   onMapPointOut() { AppActions.visitsInspected([]); }
 
   onMapPointClick(e) { 
-    let ids = (DataStore.getSelectedLocationIds().length==e.target.id.split('-').length && DataStore.getSelectedLocationIds().every((v,i)=> v === e.target.id.split('-')[i])) ? [] : e.target.id.split('-');
+    let ids = (!e.target.id || DataStore.getSelectedLocationIds().length==e.target.id.split('-').length && DataStore.getSelectedLocationIds().every((v,i)=> v === e.target.id.split('-')[i])) ? [] : e.target.id.split('-');
     AppActions.visitsSelected(ids); 
     this.setState({ about: false });
   }
 
   onViewAbout() { this.setState({ about: !this.state.about }); }
-
-  clearDetails() { AppActions.visitsSelected([]); }
 
   onWindowResize() { AppActions.windowResized(); }
 
@@ -94,19 +93,10 @@ class App extends React.Component {
           onHover={ this.onMapPointHover } 
           onMouseLeave={ this.onMapPointOut }
         />
-
-        <About 
-          open={ this.state.about } 
-          onClick={ this.onViewAbout }
-        /> 
        
-        { (DataStore.hasVisibleLocation()) ? 
-          <Details
-            onSelectDestination={ this.onMapPointHover }
-            clearDetails={ this.clearDetails }
-          /> :
-          ''
-        }
+        { (DataStore.hasVisibleLocation()) ? <Details onSelectDestination={ this.onMapPointClick } /> : '' }
+
+        { (this.state.about) ? <About onClick={ this.onViewAbout }/> : '' } 
 
         <ReactTransitionGroup component='g'>
           <Steamgraph 
@@ -119,8 +109,7 @@ class App extends React.Component {
 
         <Title />
 
-        
-
+        <AboutLink onClick={ this.onViewAbout } />
 
       </div>
     );

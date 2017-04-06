@@ -55,7 +55,11 @@
   }
 }
 
-.timelineMask {
+circle.timelineMask {
   fill: transparent;
   stroke: $background-color;
+}
+
+rect.timelineMask {
+  fill: $background-color;
 }

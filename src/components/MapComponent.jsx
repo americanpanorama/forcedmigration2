@@ -58,20 +58,68 @@ export default class Map extends React.Component {
               let ids = destination.visits.map(visit => visit.cartodb_id),
                 id = ids.join('-'),
                 selected = DataStore.getVisibleLocationIds().filter(id => ids.indexOf(parseInt(id)) !== -1).length > 0;
-              return (
-                <circle
-                  cx={ projection([destination.lng, destination.lat])[0] }
-                  cy={ projection([destination.lng, destination.lat])[1] }
-                  r={ DimensionsStore.getPointRadius(destination.visits.length) }
-                  fillOpacity={0.5}
-                  className={ 'destination ' + destination.regionClass + ((selected) ? ' selected' : '') + ((!selected && DataStore.hasSelectedLocation()) ? ' unselected' : '')} 
-                  id={ id }
-                  onClick={ this.props.onClick }
-                  onMouseEnter={ this.props.onHover }
-                  onMouseLeave={ this.props.onMouseLeave }
-                  key={ 'mapLocation' + i}
-                />
-              );
+              if (selected) {
+                return (
+                  <g>
+                    <circle
+                      cx={ projection([destination.lng, destination.lat])[0] }
+                      cy={ projection([destination.lng, destination.lat])[1] }
+                      r={ DimensionsStore.getPointRadius(destination.visits.length) }
+                      fillOpacity={1}
+                      className={ 'destination selected ' + destination.regionClass } 
+                      id={ id }
+                      onClick={ this.props.onClick }
+                      onMouseEnter={ this.props.onHover }
+                      onMouseLeave={ this.props.onMouseLeave }
+                      key={ 'mapLocation' + i}
+                    / >
+                    {/* <circle
+                      cx={ projection([destination.lng, destination.lat])[0] }
+                      cy={ projection([destination.lng, destination.lat])[1] }
+                      r={ DimensionsStore.getPointRadius(destination.visits.length) }
+                      fillOpacity={0}
+                      className={ 'destination ' + destination.regionClass } 
+                      id={ id }
+                      onClick={ this.props.onClick }
+                      onMouseEnter={ this.props.onHover }
+                      onMouseLeave={ this.props.onMouseLeave }
+                      key={ 'mapLocationSelected' + i}
+                    >
+                      <animate 
+                        attributeType="XML" 
+                        attributeName="r" 
+                        from={ DimensionsStore.getPointRadius(destination.visits.length) }
+                        to={ DimensionsStore.getPointRadius(destination.visits.length) * 3 }
+                        dur="2s" 
+                        repeatCount="indefinite"
+                      />
+                      <animate 
+                        attributeType="XML" 
+                        attributeName="fill-opacity" 
+                        from="1" 
+                        to="0"
+                        dur="2s" 
+                        repeatCount="indefinite"
+                      />
+                    </circle> */}
+                  </g>
+                );
+              } else {
+                return (
+                  <circle
+                    cx={ projection([destination.lng, destination.lat])[0] }
+                    cy={ projection([destination.lng, destination.lat])[1] }
+                    r={ DimensionsStore.getPointRadius(destination.visits.length) }
+                    fillOpacity={0.5}
+                    className={ 'destination ' + destination.regionClass + ((selected) ? ' selected' : '') + ((!selected && DataStore.hasSelectedLocation()) ? ' unselected' : '')} 
+                    id={ id }
+                    onClick={ this.props.onClick }
+                    onMouseEnter={ this.props.onHover }
+                    onMouseLeave={ this.props.onMouseLeave }
+                    key={ 'mapLocation' + i}
+                  />
+                );
+              }
 
             })}
 

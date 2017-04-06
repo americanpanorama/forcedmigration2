@@ -24,17 +24,6 @@ aside {
   bottom: 10px;
 }
 
-header {
-  text-align: center;
-  * {
-    display: inline-block;
-  }
-  h1 {
-    padding-right: 10px;
-  }
-
-}
-
 svg {
   margin: 0px auto;
   position: fixed;
@@ -99,88 +88,11 @@ svg {
   fill: #bcbd22;
 }
 
-.WESTERNEUROPE {
-  stroke: #1F77B4;
-}
-
-.EASTERNEUROPEANDCENTRALASIA {
-  stroke: #FF7F0E;
-}
-
-.EASTASIA {
-  stroke: #2CA02C;
-}
-
-.MIDDLEEAST {
-  stroke: #D62728;
-}
-
-.LATINAMERICA {
-  stroke: #9467BD;
-}
-
-.AFRICA {
-  stroke: #8C564B;
-}
-
-.SOUTHASIA {
-  stroke: #E377C2;
-}
-
-.OCEANIA {
-  stroke: #7F7F7F;
-}
-
-.CANADA {
-  stroke: #BCBD22;
-}
-
 .transparent {
   fill: transparent;
 }
 
-.details {
 
-  .destinations {
-    position: fixed;
-    text-align: left;
-    overflow-y: scroll;
-
-    h3 {
-      margin: 0;
-    }
-
-    h4 {
-      margin-top: 0;
-    }
-
-    ul {
-      list-style: none;
-
-      li {
-        padding-bottom: 5px;
-        border-bottom: 1px solid #ddd;
-        margin-left: 3px;
-
-        &:last-child {
-          border-bottom: none;
-        }
-      }
-    }
-  }
-
-  .controls {
-    position: fixed;
-    overflow-y: scroll;
-    text-align: left;
-
-    span {
-      padding: 0 4px;
-    }
-  }
-
-
-}
 
 .destination {
   pointer-events: auto;
