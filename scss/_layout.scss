@@ -64,13 +64,11 @@ svg {
 }
 
 .westerneurope {
-  fill-opacity: 0.7;
   fill: lighten(orange, 20%);
 }
 
 .easterneuropeandcentralasia {
-  fill-opacity: 0.7;
-  fill: lighten(#722f37, 50%);
+  fill: lighten(#722f37, 40%);
 }
 
 .eastasia {
@@ -82,7 +80,7 @@ svg {
 }
 
 .latinamerica {
-  fill: #cfe272;
+  fill: #7EC0EE; // #cfe272;
 }
 
 .africa {
@@ -157,7 +155,6 @@ svg {
     }
 
     ul {
-      padding-bottom: 40px;
       list-style: none;
 
       li {
@@ -190,16 +187,17 @@ svg {
   fill-opacity: 0.7;
 
   &.timeline {
-    fill-opacity: 0.5;
+    fill-opacity: 0.7;
   }
 
   &.selected {
     stroke: white;
     stroke-width: 1;
+    fill-opacity: 1;
   }
 
   &.unselected {
-    fill-opacity: 0.2;
+    fill-opacity: 0.4;
   }
 }
 
@@ -214,3 +212,4 @@ svg.titleImage {
     fill: $text-color;
   }
 }
+

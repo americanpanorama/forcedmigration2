@@ -57,7 +57,7 @@ export default class Map extends React.Component {
             { DataStore.getDestinationsForSelected().map((destination, i) => {
               let ids = destination.visits.map(visit => visit.cartodb_id),
                 id = ids.join('-'),
-                selected = DataStore.getSelectedLocationIds().filter(id => ids.indexOf(parseInt(id)) !== -1).length > 0;
+                selected = DataStore.getVisibleLocationIds().filter(id => ids.indexOf(parseInt(id)) !== -1).length > 0;
               return (
                 <circle
                   cx={ projection([destination.lng, destination.lat])[0] }
@@ -66,7 +66,9 @@ export default class Map extends React.Component {
                   fillOpacity={0.5}
                   className={ 'destination ' + destination.regionClass + ((selected) ? ' selected' : '') + ((!selected && DataStore.hasSelectedLocation()) ? ' unselected' : '')} 
                   id={ id }
-                  onClick={ this.props.onHover }
+                  onClick={ this.props.onClick }
+                  onMouseEnter={ this.props.onHover }
+                  onMouseLeave={ this.props.onMouseLeave }
                   key={ 'mapLocation' + i}
                 />
               );

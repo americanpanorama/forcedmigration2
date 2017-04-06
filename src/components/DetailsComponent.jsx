@@ -14,7 +14,7 @@ export default class Details extends React.Component {
     return (
       <div 
         className='details'
-        key={ 'visits' + DataStore.getSelectedLocationIds().join('-') }
+        key={ 'visits' + DataStore.getVisibleLocationIds().join('-') }
       >
         <div
           className='controls'
@@ -49,13 +49,13 @@ export default class Details extends React.Component {
           style= { DimensionsStore.getDetailsStyle() }
         >
           <h3 style= { DimensionsStore.getDetailsDestinationStyle() }>
-            { DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.city + ', ' + DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.country}
+            { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.city + ', ' + DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.country}
           </h3>
           <h4 style= { DimensionsStore.getDetailsOfficeholderStyle() }>
-            { ((DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.position == 'SOS') ? 'Secretary of State ' : 'President ')  + DataStore.getDestinationDetails(DataStore.getSelectedLocationIds())[0].properties.pres_sos}
+            { ((DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.position == 'SOS') ? 'Secretary of State ' : 'President ')  + DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.pres_sos}
           </h4>
           <ul>
-          { DataStore.getDestinationDetails(DataStore.getSelectedLocationIds()).map((destination, i) => {
+          { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds()).map((destination, i) => {
             let d = new Date(destination.properties.date_convert.substring(0,10)),
               date = d.toLocaleString('en-us', { month: "long" }) + ' ' + d.getDate() + ', ' + d.getFullYear();
             return (

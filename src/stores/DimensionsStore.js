@@ -67,7 +67,10 @@ const DimensionsStore = {
 
   getTermsLabelSize: function() { return this.getTermWidth() / 2; },
 
-  getSVGArc(padding, radius) { return 'M ' + padding + ',' + radius + ' A ' + (radius-padding) + ',' + (radius-padding) + ' 0 0, 1 ' + (radius*2 - padding) + ',' + radius; },
+  getSVGArc(padding, radius, sweepFlag) {
+    sweepFlag = (sweepFlag) ? sweepFlag : 1; 
+    return 'M ' + padding + ',' + radius + ' A ' + (radius-padding) + ',' + (radius-padding) + ' 0 0, ' + sweepFlag + ' ' + (radius*2 - padding) + ',' + radius; 
+  },
 
   getSOSLabelArc() { return this.getSVGArc(this.getTermWidth() / -4, this.getRadius()); },
 
@@ -78,6 +81,10 @@ const DimensionsStore = {
   getTitleSize: function() { return this.getTermWidth(); },
 
   getSubtitleSize: function() { return this.getTermWidth() * 0.75; },
+
+  getAboutMapLinkArc: function() { return this.getSVGArc(-1 * (this.getTermWidth() * 2 + this.getGraphWidth() + this.data.titleOffset * this.data.widthHeight / 2), this.getRadius(), '0'); },
+
+  getAboutMapLinkSize: function() { return this.getTermWidth() * 0.75; },
 
   getTimelineLabelSize: function() { return this.getTermWidth() / 3; },
 
@@ -91,9 +98,9 @@ const DimensionsStore = {
 
   getDetailsControlStyle: function() {
     return {
-      top: window.innerHeight / 2 + this.getRadius() *  0.1,
+      top: window.innerHeight / 2 - this.getRadius() *  0.4,
       left: window.innerWidth / 2 - this.getRadius() *  0.6,
-      width: this.getRadius() * 0.5,
+      width: this.getRadius() * 0.4,
       height: this.getTermWidth() ,
       fontSize: this.getTermWidth() / 2
     };
@@ -101,11 +108,20 @@ const DimensionsStore = {
 
   getDetailsStyle: function() {
     return {
-      top: window.innerHeight / 2 + this.getRadius() *  0.1 + this.getTermWidth(),
+      top: window.innerHeight / 2 - this.getRadius() *  0.4 + this.getTermWidth(),
       left: window.innerWidth / 2 - this.getRadius() *  0.6,
-      width: this.getRadius() * 0.5,
-      height: this.getRadius() * 0.9,
+      width: this.getRadius() * 0.4,
+      height: window.innerHeight * 0.7,
       fontSize: this.getTermWidth() / 2
+    };
+  },
+
+  getAboutStyle: function() {
+    return {
+      marginTop: this.getRadius() * Math.sin(Math.PI/-4),
+      marginLeft: this.getRadius() * Math.sin(Math.PI/-4),
+      marginBottom: this.getRadius(),
+      width: 2 *  this.getRadius() * Math.sin(Math.PI/4)
     };
   },
 
@@ -117,7 +133,7 @@ const DimensionsStore = {
 
   getDetailsOfficeholderStyle: function() {
     return {
-      fontSize: this.getTermWidth() / 2
+      fontSize: this.getTermWidth() / 2,
     };
   },
 

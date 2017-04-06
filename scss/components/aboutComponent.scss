@@ -1,0 +1,17 @@
+#about {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  #about-bg{
+    fill: #999;
+    fill-opacity: 1;
+    pointer-events: auto;
+  }
+  #about-content {
+    position: relative;
+    color: $text-color;
+    text-align: left;
+    padding: 20px 20px 20px 0;
+  }
+}

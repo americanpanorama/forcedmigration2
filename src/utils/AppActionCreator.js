@@ -6,6 +6,7 @@ export const AppActionTypes = {
   storeChanged: 'storeChanged',
   officeholderSelected: 'officeholderSelected',
   visitsSelected: 'visitsSelected',
+  visitsInspected: 'visitsInspected',
   windowResized: 'windowResized'
 
 };
@@ -32,6 +33,13 @@ export const AppActions = {
   visitsSelected: (ids) => {
     AppDispatcher.dispatch({
       type: AppActionTypes.visitsSelected,
+      ids: ids
+    });
+  },
+
+  visitsInspected: (ids) => {
+    AppDispatcher.dispatch({
+      type: AppActionTypes.visitsInspected,
       ids: ids
     });
   },

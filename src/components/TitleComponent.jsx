@@ -32,7 +32,7 @@ export default class SteamGraph extends React.Component {
             fontSize={ DimensionsStore.getTitleSize() }
             textAnchor='end'
           >
-            <textPath xlinkHref="#titleArcSegment" startOffset='80%'>
+            <textPath xlinkHref="#titleArcSegment" startOffset='78%'>
               The Executive Abroad
             </textPath>
           </text>
@@ -42,7 +42,7 @@ export default class SteamGraph extends React.Component {
             fontSize={ DimensionsStore.getSubtitleSize() }
             textAnchor='start'
           >
-            <textPath xlinkHref="#titleArcSegment" startOffset='81%'>
+            <textPath xlinkHref="#titleArcSegment" startOffset='79%'>
               1905-2016
             </textPath>
           </text>

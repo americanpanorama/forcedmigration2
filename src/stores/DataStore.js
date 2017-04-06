@@ -26,6 +26,7 @@ const DataStore = {
     presidentialDestinationsByYear: [],
     sosDestinationsByYear: [],
     selectedLocationIds: [],
+    inspectedLocationIds: [],
     detailText: null
   },
 
@@ -121,6 +122,11 @@ const DataStore = {
       // sort
       regionData.values.sort((a,b) => a.year - b.year);      
     });
+    // drop the US
+    theData = theData.filter(regionData => regionData.key !== 'u.s');
+    // sort by region 
+    let theOrdering = ['canada', 'latinamerica', 'westerneurope', 'easterneuropeandcentralasia', 'middleeast', 'africa', 'southasia', 'eastasia', 'oceania'];
+    theData.sort((a,b) => theOrdering.indexOf(a.key) - theOrdering.indexOf(b.key));
 
     return theData;
   },
@@ -130,19 +136,26 @@ const DataStore = {
     this.data.selectedOffice = office;
 
     // if there are selected visits, see if the new selection visited the same place
-    if (this.data.selectedLocationIds.length > 0) {
+    if (this.hasSelectedLocation()) {
       let city_id = this.getDestinationDetails(this.data.selectedLocationIds)[0].properties.city_id,
         theDestination = this.getDestinationsForSelected().filter(destination => destination.cityId == city_id),
         destinationIds = (theDestination.length > 0) ? theDestination[0].visits.map(visit => visit.cartodb_id) : [];
 
-      this.data.selectedLocationIds = destinationIds;
+      this.setSelectedVisits(destinationIds);
     }
 
     this.emit(AppActionTypes.storeChanged);
   },
 
   setSelectedVisits: function(ids) {
+    ids = ids.map(id => parseInt(id));
     this.data.selectedLocationIds = ids;
+    this.emit(AppActionTypes.storeChanged);
+  },
+
+  setInspectingVisits: function(ids) {
+    ids = ids.map(id => parseInt(id));
+    this.data.inspectedLocationIds = ids;
     this.emit(AppActionTypes.storeChanged);
   },
 
@@ -152,10 +165,18 @@ const DataStore = {
 
   getSelectedOffice: function() { return this.data.selectedOffice; },
 
+  getInspectedLocationIds: function() { return this.data.inspectedLocationIds; },
+
+  hasInspectedLocation: function() { return this.data.inspectedLocationIds.length > 0; },
+
   getSelectedLocationIds: function() { return this.data.selectedLocationIds; },
 
   hasSelectedLocation: function() { return this.data.selectedLocationIds.length > 0; },
 
+  getVisibleLocationIds: function() { return (this.hasInspectedLocation()) ? this.getInspectedLocationIds() : (this.hasSelectedLocation()) ? this.getSelectedLocationIds() : []; },
+
+  hasVisibleLocation: function() { return this.getVisibleLocationIds().length > 0; },
+  
   getOceanPolygons: function() { return OceansJson.features; },
 
   getRegionsPolygons: function() { return Regions.features; },
@@ -416,6 +437,9 @@ DataStore.dispatchToken = AppDispatcher.register((action) => {
     break;
   case AppActionTypes.visitsSelected:
     DataStore.setSelectedVisits(action.ids);
+    break;
+  case AppActionTypes.visitsInspected:
+    DataStore.setInspectingVisits(action.ids);
     break;
   }
   return true;

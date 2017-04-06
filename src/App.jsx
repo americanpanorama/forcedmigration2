@@ -12,6 +12,7 @@ import Details from './components/DetailsComponent.jsx';
 import Timeline from './components/TimelineComponent.jsx';
 import Steamgraph from './components/SteamgraphComponent.jsx';
 import Title from './components/TitleComponent.jsx';
+import About from './components/AboutComponent.jsx';
 
 import DataStore from './stores/DataStore';
 import DimensionsStore from './stores/DimensionsStore';
@@ -23,8 +24,12 @@ class App extends React.Component {
   constructor (props) {
     super(props);
 
+    this.state = {
+      about: (HashManager.getState()['about']) ? true : false
+    };
+
     // bind handlers
-    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover'];
+    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover', 'onMapPointClick', 'onMapPointOut', 'onViewAbout'];
     handlers.map(handler => { this[handler] = this[handler].bind(this); });
   }
 
@@ -48,12 +53,24 @@ class App extends React.Component {
   onOfficeholderSelected(e) {
     let [office, id] = e.target.id.split('-');
     AppActions.officeholderSelected(id, office);
+    this.setState({ about: false });
   }
 
   onMapPointHover(e) { 
+    let ids = (DataStore.getInspectedLocationIds().length==e.target.id.split('-').length && DataStore.getInspectedLocationIds().every((v,i)=> v === e.target.id.split('-')[i])) ? [] : e.target.id.split('-');
+    AppActions.visitsInspected(ids); 
+    this.setState({ about: false });
+  }
+
+  onMapPointOut() { AppActions.visitsInspected([]); }
+
+  onMapPointClick(e) { 
     let ids = (DataStore.getSelectedLocationIds().length==e.target.id.split('-').length && DataStore.getSelectedLocationIds().every((v,i)=> v === e.target.id.split('-')[i])) ? [] : e.target.id.split('-');
     AppActions.visitsSelected(ids); 
+    this.setState({ about: false });
   }
+
+  onViewAbout() { this.setState({ about: !this.state.about }); }
 
   clearDetails() { AppActions.visitsSelected([]); }
 
@@ -64,21 +81,26 @@ class App extends React.Component {
       office = DataStore.getSelectedOffice();
     hash['president'] = (office == 'president') ? DataStore.getSelectedId() : null;
     hash['sos'] = (office == 'sos') ? DataStore.getSelectedId() : null;
-    hash['visits'] = DataStore.getSelectedLocationIds().join('-');
+    hash['visits'] = (DataStore.hasSelectedLocation()) ? DataStore.getSelectedLocationIds().join('-') : null;
     HashManager.updateHash(hash);
-  }
-
-  _makeArc(padding, radius) {
-    return 'M ' + padding + ',' + radius + ' A ' + (radius-padding) + ',' + (radius-padding) + ' 0 0, 1 ' + (radius*2 - padding) + ',' + radius; 
   }
 
   render () {
     return (
       <div>
 
-        <TheMap onHover={ this.onMapPointHover } />
+        <TheMap 
+          onClick={ this.onMapPointClick }
+          onHover={ this.onMapPointHover } 
+          onMouseLeave={ this.onMapPointOut }
+        />
 
-        { (DataStore.getSelectedLocationIds().length > 0) ? 
+        <About 
+          open={ this.state.about } 
+          onClick={ this.onViewAbout }
+        /> 
+       
+        { (DataStore.hasVisibleLocation()) ? 
           <Details
             onSelectDestination={ this.onMapPointHover }
             clearDetails={ this.clearDetails }
@@ -87,11 +109,18 @@ class App extends React.Component {
         }
 
         <ReactTransitionGroup component='g'>
-          <Steamgraph onHover={ this.onMapPointHover } />
+          <Steamgraph 
+            onClick={ this.onMapPointClick }
+            onHover={ this.onMapPointHover } 
+            onMouseLeave={ this.onMapPointOut }
+          />
           <Timeline onOfficeholderSelected = { this.onOfficeholderSelected } />
         </ReactTransitionGroup>
 
         <Title />
+
+        
+
 
       </div>
     );

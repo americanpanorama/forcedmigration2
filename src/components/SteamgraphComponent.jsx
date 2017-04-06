@@ -46,6 +46,15 @@ export default class SteamGraph extends React.Component {
       > 
         <g transform={'translate(' + DimensionsStore.getTimelineWidth() + ',' + DimensionsStore.getTimelineWidth() + ') rotate(' + this.state.rotate + ' ' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')'}>
 
+            {/* mask to obscure details */}
+            <circle
+              cx={DimensionsStore.getRadius()}
+              cy={DimensionsStore.getRadius()}
+              r={ DimensionsStore.getRadius() + DimensionsStore.getTimelineWidth() / 2}
+              strokeWidth={ DimensionsStore.getTimelineWidth() }
+              className='timelineMask'
+            /> 
+
             {/* tick marks for distance */}
             { [10, 7.5, 5, 2.5].map(milesAway => {
               return (
@@ -119,9 +128,11 @@ export default class SteamGraph extends React.Component {
                     angle={ DataStore.getDateAngle(destination.properties.date_convert.substring(0,10)) }
                     originAngle={ (DataStore.getOfficeholderEndAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) + DataStore.getOfficeholderStartAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice())) / 2 }
                     key={ 'destinationRing' + destination.properties.cartodb_id }
-                    selected={ DataStore.getSelectedLocationIds().indexOf(destination.properties.cartodb_id.toString()) !== -1 }
-                    unselected={ (DataStore.getSelectedLocationIds().indexOf(destination.properties.cartodb_id.toString()) == -1) && DataStore.hasSelectedLocation() }
-                    onClick={ this.props.onHover }
+                    selected={ DataStore.getVisibleLocationIds().indexOf(destination.properties.cartodb_id) !== -1 }
+                    unselected={ (DataStore.getVisibleLocationIds().indexOf(destination.properties.cartodb_id) == -1) && DataStore.hasVisibleLocation() }
+                    onClick={ this.props.onClick }
+                    onHover={ this.props.onHover }
+                    onMouseLeave={ this.props.onMouseLeave }
                   />
                 );
               }
