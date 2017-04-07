@@ -74,7 +74,7 @@ export default class Timeline extends React.Component {
                   id={ 'president-' + presidency.number }
                   onOfficeholderSelected={ this.props.onOfficeholderSelected }
                   visited={ DataStore.getOfficeholdersWhoVisitedSelected().indexOf('president-' + presidency.number) !== -1 }
-                  label={ presidency.president }
+                  label={ (isSelected) ? presidency.name : presidency.last_name }
                   radius={ DimensionsStore.getRadius() }
                   textHref={ '#presSegment' }
                 />
@@ -118,7 +118,7 @@ export default class Timeline extends React.Component {
                   selected={ isSelected }
                   id={ 'sos-' + sos.number }
                   onOfficeholderSelected={ this.props.onOfficeholderSelected }
-                  label={ sos.name.split(' ').splice(-1) }
+                  label={ (isSelected) ? sos.name : sos.last_name }
                   radius={ DimensionsStore.getRadius() }
                   textHref={ '#sosSegment' }
                 />

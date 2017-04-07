@@ -62,7 +62,6 @@ export default class Details extends React.Component {
           
           <ul>
           { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds()).map((destination, i) => {
-            console.log(destination.properties.date_convert);
             let d = new Date(destination.properties.date_convert.substring(0,10)),
               date = d.toLocaleString('en-us', { month: "long" }) + ' ' + d.getDate() + ', ' + d.getFullYear();
             if (destination.properties.date_convert.split(',')[1]) {
@@ -83,7 +82,7 @@ export default class Details extends React.Component {
             }
             return (
               <li key={ 'detail' + i }>
-                { date }
+                <span className='date'>{ date }</span>
                 <br />
                 <span className='description'>{ destination.properties.remarks }</span>
               </li>
