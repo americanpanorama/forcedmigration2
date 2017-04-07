@@ -1,6 +1,5 @@
 #about {
   position: absolute;
-  top: 50%;
   left: 50%;
 
   #about-bg{
@@ -19,6 +18,7 @@
     position: relative;
     color: black;
     text-align: left;
+    overflow-y: scroll;
 
     a {
       color: $background-color;

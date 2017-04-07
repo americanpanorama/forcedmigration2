@@ -49,8 +49,10 @@ export default class DestinationTimeline extends React.Component {
       <circle
         cx={ this.state.cx }
         cy={ this.state.cy }
-        r={ DimensionsStore.getPointRadius() }
-        className={ 'destination ' + this.props.destination.properties.new_region.replace(/ /g,'').toLowerCase() + ((this.props.selected) ? ' selected' : '') + ((this.props.unselected) ? ' unselected' : '')}
+        r={ (this.props.selected) ? DimensionsStore.getPointRadius() * 1.25 : DimensionsStore.getPointRadius() }
+        fillOpacity={ (this.props.selected) ? 1 : DataStore.hasVisibleLocation() ? 0.2 : 0.7 }
+        strokeWidth={ (this.props.selected) ? DimensionsStore.getPointRadius() / 2 : 0 }
+        className={ 'destination ' + this.props.destination.properties.new_region.replace(/ /g,'').toLowerCase() }
         onMouseEnter={ this.props.onHover }
         onMouseLeave={ this.props.onMouseLeave }
         onClick={ this.props.onClick }

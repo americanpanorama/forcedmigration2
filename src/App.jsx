@@ -58,17 +58,25 @@ class App extends React.Component {
   }
 
   onMapPointHover(e) { 
-    let ids = (DataStore.getInspectedLocationIds().length==e.target.id.split('-').length && DataStore.getInspectedLocationIds().every((v,i)=> v === e.target.id.split('-')[i])) ? [] : e.target.id.split('-');
-    AppActions.visitsInspected(ids); 
+    let ids = e.target.id.split('-').map(id => parseInt(id));
+    // only hover if it's not selected
+    AppActions.visitsInspected(ids);
+    if (!DataStore.getSelectedLocationIds().every((v,i)=> v === ids[i])) {
+      //AppActions.visitsInspected(ids); 
+    }
     this.setState({ about: false });
   }
 
   onMapPointOut() { AppActions.visitsInspected([]); }
 
   onMapPointClick(e) { 
-    let ids = (!e.target.id || DataStore.getSelectedLocationIds().length==e.target.id.split('-').length && DataStore.getSelectedLocationIds().every((v,i)=> v === e.target.id.split('-')[i])) ? [] : e.target.id.split('-');
-    AppActions.visitsSelected(ids); 
     this.setState({ about: false });
+    let ids = (e.target.id) ? e.target.id.split('-').map(id => parseInt(id)) : [];
+    // off if the selected location is clicked again
+    if (ids.every((v,i)=> v === DataStore.getSelectedLocationIds()[i])) {
+      ids = [];
+    }
+    AppActions.visitsSelected(ids); 
   }
 
   onViewAbout() { this.setState({ about: !this.state.about }); }

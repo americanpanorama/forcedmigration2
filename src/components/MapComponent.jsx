@@ -58,69 +58,21 @@ export default class Map extends React.Component {
               let ids = destination.visits.map(visit => visit.cartodb_id),
                 id = ids.join('-'),
                 selected = DataStore.getVisibleLocationIds().filter(id => ids.indexOf(parseInt(id)) !== -1).length > 0;
-              if (selected) {
-                return (
-                  <g>
-                    <circle
-                      cx={ projection([destination.lng, destination.lat])[0] }
-                      cy={ projection([destination.lng, destination.lat])[1] }
-                      r={ DimensionsStore.getPointRadius(destination.visits.length) }
-                      fillOpacity={1}
-                      className={ 'destination selected ' + destination.regionClass } 
-                      id={ id }
-                      onClick={ this.props.onClick }
-                      onMouseEnter={ this.props.onHover }
-                      onMouseLeave={ this.props.onMouseLeave }
-                      key={ 'mapLocation' + i}
-                    / >
-                    {/* <circle
-                      cx={ projection([destination.lng, destination.lat])[0] }
-                      cy={ projection([destination.lng, destination.lat])[1] }
-                      r={ DimensionsStore.getPointRadius(destination.visits.length) }
-                      fillOpacity={0}
-                      className={ 'destination ' + destination.regionClass } 
-                      id={ id }
-                      onClick={ this.props.onClick }
-                      onMouseEnter={ this.props.onHover }
-                      onMouseLeave={ this.props.onMouseLeave }
-                      key={ 'mapLocationSelected' + i}
-                    >
-                      <animate 
-                        attributeType="XML" 
-                        attributeName="r" 
-                        from={ DimensionsStore.getPointRadius(destination.visits.length) }
-                        to={ DimensionsStore.getPointRadius(destination.visits.length) * 3 }
-                        dur="2s" 
-                        repeatCount="indefinite"
-                      />
-                      <animate 
-                        attributeType="XML" 
-                        attributeName="fill-opacity" 
-                        from="1" 
-                        to="0"
-                        dur="2s" 
-                        repeatCount="indefinite"
-                      />
-                    </circle> */}
-                  </g>
-                );
-              } else {
-                return (
-                  <circle
-                    cx={ projection([destination.lng, destination.lat])[0] }
-                    cy={ projection([destination.lng, destination.lat])[1] }
-                    r={ DimensionsStore.getPointRadius(destination.visits.length) }
-                    fillOpacity={0.5}
-                    className={ 'destination ' + destination.regionClass + ((selected) ? ' selected' : '') + ((!selected && DataStore.hasSelectedLocation()) ? ' unselected' : '')} 
-                    id={ id }
-                    onClick={ this.props.onClick }
-                    onMouseEnter={ this.props.onHover }
-                    onMouseLeave={ this.props.onMouseLeave }
-                    key={ 'mapLocation' + i}
-                  />
-                );
-              }
-
+              return (
+                <circle
+                  cx={ projection([destination.lng, destination.lat])[0] }
+                  cy={ projection([destination.lng, destination.lat])[1] }
+                  r={ (selected) ? DimensionsStore.getPointRadius(destination.visits.length) + DimensionsStore.getPointRadius() / 4 : DimensionsStore.getPointRadius(destination.visits.length) }
+                  fillOpacity={ (selected) ? 1 : DataStore.hasVisibleLocation() ? 0.4 : 0.7 }
+                  strokeWidth={ (selected) ? DimensionsStore.getPointRadius() / 2 : 0 }
+                  className={ 'destination ' + destination.regionClass } 
+                  id={ id }
+                  onClick={ this.props.onClick }
+                  onMouseEnter={ this.props.onHover }
+                  onMouseLeave={ this.props.onMouseLeave }
+                  key={ 'mapLocation' + i}
+                />
+              );
             })}
 
             {/* map labels */}
@@ -128,15 +80,16 @@ export default class Map extends React.Component {
             <circle
               cx={ DimensionsStore.getRadius() }
               cy={ DimensionsStore.getRadius() }
-              r={ 2 }
-              fill='white'
+              r={ DimensionsStore.getPointRadius() * 2/3 }
+              fill='#eee'
+              fillOpacity={1}
             />
 
             <text
-              x={ DimensionsStore.getRadius() + 8 }
+              x={ DimensionsStore.getRadius() * 1.02 }
               y={ DimensionsStore.getRadius() }
               fill='#eee'
-              fillOpacity={0.5}
+              fillOpacity={0.7}
               fontSize={ DimensionsStore.getRegionLabelSize() }
               alignmentBaseline='hanging'
 

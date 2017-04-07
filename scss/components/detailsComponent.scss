@@ -47,8 +47,9 @@
 
   .controls {
     position: fixed;
-    overflow-y: scroll;
     text-align: left;
+    opacity: 0.5;
+
 
     span {
       padding: 0 4px;

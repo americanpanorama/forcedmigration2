@@ -106,6 +106,7 @@ const DimensionsStore = {
     };
   },
 
+
   getDetailsStyle: function() {
     return {
       top: window.innerHeight / 2 - this.getRadius() *  0.4 + this.getTermWidth(),
@@ -117,12 +118,15 @@ const DimensionsStore = {
     };
   },
 
-  getAboutStyle: function() {
+  getAboutStyle: function() { return { top: this.getWidthHeight() / 2 }; },
+
+  getAboutContentStyle: function() {
     return {
       marginTop: this.getRadius() * Math.sin(Math.PI/-4),
       marginLeft: this.getRadius() * Math.sin(Math.PI/-4),
       marginBottom: this.getRadius(),
       width: 2 *  this.getRadius() * Math.sin(Math.PI/4) - this.getTermWidth() * 2,
+      height: this.getRadius() * Math.sin(Math.PI/4) + this.getRadius() - this.getTermWidth() * 2,
       paddingTop: this.getTermWidth() * 2,
       paddingLeft: this.getTermWidth(),
       paddingRight: this.getTermWidth(),

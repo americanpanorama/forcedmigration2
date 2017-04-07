@@ -148,7 +148,7 @@ const DataStore = {
   },
 
   setSelectedVisits: function(ids) {
-    ids = ids.map(id => parseInt(id));
+    this.data.inspectedLocationIds = [];
     this.data.selectedLocationIds = ids;
     this.emit(AppActionTypes.storeChanged);
   },
@@ -176,6 +176,8 @@ const DataStore = {
   getVisibleLocationIds: function() { return (this.hasInspectedLocation()) ? this.getInspectedLocationIds() : (this.hasSelectedLocation()) ? this.getSelectedLocationIds() : []; },
 
   hasVisibleLocation: function() { return this.getVisibleLocationIds().length > 0; },
+
+  isSelectedLocation: function() { return this.getVisibleLocationIds() == this.getSelectedLocationIds(); },
   
   getOceanPolygons: function() { return OceansJson.features; },
 

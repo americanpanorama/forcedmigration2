@@ -8,7 +8,7 @@ export default class About extends React.Component {
 
   render() {
     return (
-      <div id='about'>
+      <div id='about' style={ DimensionsStore.getAboutStyle() }>
         <svg
           width={ DimensionsStore.getWidthHeight() }
           height={ DimensionsStore.getWidthHeight() }
@@ -32,7 +32,7 @@ export default class About extends React.Component {
           close
         </div>
 
-        <div id='about-content'  style={ DimensionsStore.getAboutStyle() } >
+        <div id='about-content'  style={ DimensionsStore.getAboutContentStyle() } >
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur mattis lobortis ex. Aenean nec nisl est. Donec a tempus lorem. Aliquam cursus hendrerit lorem, et feugiat quam elementum in. Curabitur scelerisque in ante non aliquam. Donec vel arcu eget metus viverra porta. Maecenas vestibulum tellus vitae tellus consectetur, quis bibendum magna posuere. Maecenas nibh mi, viverra eget convallis sit amet, tempus et leo. Integer aliquet varius odio, vitae mollis metus porttitor sed. Pellentesque ut nibh at mi elementum ultrices eu nec ex. Quisque bibendum tortor turpis, sit amet tincidunt dui consequat nec. Quisque sit amet lorem sed magna suscipit malesuada quis vel ipsum. Cras imperdiet pulvinar enim, dignissim maximus lectus dictum id. Praesent vel lacus iaculis, sodales elit ut, vestibulum quam.</p>
 
           <p>Vivamus bibendum turpis vel libero imperdiet facilisis. Sed lobortis tincidunt erat, sit amet sagittis ex efficitur sed. Vestibulum eu ornare odio, vel vehicula dui. Nulla consequat et enim a pretium. Quisque semper dolor et ante molestie, nec sagittis risus efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce tempus non odio eu laoreet. Nam porttitor ac dui sed varius. Vivamus elementum felis leo, sollicitudin congue nunc tempor a. In interdum turpis at cursus placerat. Nulla ipsum est, pretium non blandit non, elementum at enim.</p>
