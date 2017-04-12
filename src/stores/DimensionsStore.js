@@ -155,6 +155,14 @@ const DimensionsStore = {
     };
   },
 
+  getTermsArc: function() { 
+    return d3.svg.arc()
+      .innerRadius(this.getSOSInnerRadius())
+      .outerRadius(this.getPresOuterRadius())
+      .startAngle(Math.PI * 2 * 0.075/2)
+      .endAngle(Math.PI * 2 - Math.PI * 2 * 0.075/2)();
+  },
+
   getSOSArc: function () {
     return d3.svg.arc()
       .innerRadius(this.getSOSInnerRadius())

@@ -42,7 +42,14 @@ export default class DestinationTimeline extends React.Component {
 
   componentWillLeave(callback) { callback(); }
 
-  componentWillReceiveProps(nextProps) { }
+  componentWillReceiveProps(nextProps) { 
+    if (this.state.cx !== DimensionsStore.getTimelineDestinationX(nextProps.angle, nextProps.destination.properties.distance)) {
+      this.setState({
+        cx: DimensionsStore.getTimelineDestinationX(nextProps.angle, nextProps.destination.properties.distance),
+        cy: DimensionsStore.getTimelineDestinationY(nextProps.angle, nextProps.destination.properties.distance)
+      });
+    }
+  }
 
   render() {
     return (

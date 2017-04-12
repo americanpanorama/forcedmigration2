@@ -14,6 +14,7 @@ import Steamgraph from './components/SteamgraphComponent.jsx';
 import Title from './components/TitleComponent.jsx';
 import About from './components/AboutComponent.jsx';
 import AboutLink from './components/AboutLinkComponent.jsx';
+import IntroModal from './components/IntroModalComponent.jsx';
 
 import DataStore from './stores/DataStore';
 import DimensionsStore from './stores/DimensionsStore';
@@ -26,15 +27,18 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      about: (HashManager.getState()['about']) ? true : false
+      about: (HashManager.getState()['about']) ? true : false,
+      showIntroModal: true
     };
 
     // bind handlers
-    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover', 'onMapPointClick', 'onMapPointOut', 'onViewAbout'];
+    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover', 'onMapPointClick', 'onMapPointOut', 'onViewAbout', 'onDismissIntroModal'];
     handlers.map(handler => { this[handler] = this[handler].bind(this); });
   }
 
   componentWillMount () { 
+    
+
     let office = (Object.keys(HashManager.getState()).indexOf('sos') !== -1) ? 'sos' : 'president',
       id = (HashManager.getState()[office]) ? (HashManager.getState()[office]) : 44,
       visits = (HashManager.getState().visits) ? HashManager.getState().visits.split('-') : [];
@@ -81,6 +85,16 @@ class App extends React.Component {
 
   onViewAbout() { this.setState({ about: !this.state.about }); }
 
+  onDismissIntroModal (persist) {
+    if (persist) {
+      window.localStorage.setItem('hasViewedIntroModal-executiveabroad', 'true');
+    }
+    this.setState({
+      showIntroModal: false
+    });
+  }
+
+
   onWindowResize() { AppActions.windowResized(); }
 
   changeHash () {
@@ -93,6 +107,7 @@ class App extends React.Component {
   }
 
   render () {
+    console.log(DataStore.getDateAngle('1905-04-03'));
     return (
       <div>
 
@@ -118,6 +133,8 @@ class App extends React.Component {
         <Title />
 
         <AboutLink onClick={ this.onViewAbout } />
+
+        { !this.state.showIntroModal ? <IntroModal onDismiss={ this.onDismissIntroModal } /> : '' }
 
       </div>
     );

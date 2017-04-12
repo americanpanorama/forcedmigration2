@@ -46,6 +46,12 @@ export default class Timeline extends React.Component {
             />
           </defs>
 
+          <path
+            d={ DimensionsStore.getTermsArc() }
+            transform={ 'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
+            className={ 'term-bg' }
+          />
+
           <text 
             fontSize={ DimensionsStore.getTermsLabelSize() }
             textAnchor='middle'
@@ -73,7 +79,7 @@ export default class Timeline extends React.Component {
                   selected={ isSelected } 
                   id={ 'president-' + presidency.number }
                   onOfficeholderSelected={ this.props.onOfficeholderSelected }
-                  visited={ DataStore.getOfficeholdersWhoVisitedSelected().indexOf('president-' + presidency.number) !== -1 }
+                  //visited={ DataStore.getOfficeholdersWhoVisitedSelected().indexOf('president-' + presidency.number) !== -1 }
                   label={ (isSelected) ? presidency.name : presidency.last_name }
                   radius={ DimensionsStore.getRadius() }
                   textHref={ '#presSegment' }

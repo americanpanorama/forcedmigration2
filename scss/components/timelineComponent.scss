@@ -1,7 +1,6 @@
 .terms {
     path {
-      fill: $term-color;
-      fill-opacity: 1;
+      fill: transparent;
       stroke: #666699;
       stroke-width: 0.5;
       pointer-events: auto;
@@ -25,6 +24,10 @@
         font-weight: bold;
       }
     }
+}
+
+.term-bg {
+  fill: $term-color;
 }
 
 .years {

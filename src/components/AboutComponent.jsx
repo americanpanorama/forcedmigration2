@@ -41,7 +41,7 @@ export default class About extends React.Component {
           <p>The <a href='https://history.state.gov/departmenthistory/travels'>data for foreign trips by presidents and secretaries of state</a> come from the Office of the Historian, Bureau of Public Affairs, United States of America.</p>
 
           <h3>Acknowledgments</h3>
-          <p>This map is authored by Robert K. Nelson, Justin Madron, Timothy Barney and the students in Barney's "TITLE" class: .</p>
+          <p>This map is authored by Robert K. Nelson, Justin Madron, Timothy Barney, Lily Calaycay and the students in Barney's "The Rhetorical Lives of Maps" seminar: Will Alpaugh, Bryan Carapucci, Zach Clarke, Emily Ferkler, Cathryn Flint, Mitchell Gregory, Paige Harty, Annie Hunter, Madison Kloster, Sean Menges, Dan Robert, Michael Roberts, Lauren Scheffey, Maddie Shea, Mason Zadan, and Violet Zeng.</p>
           <p>The <a href='//mellon.org'>Andrew W. Mellon Foundation</a> generously provided grant finding to develop American Panorama.</p>
         </div> 
       </div>

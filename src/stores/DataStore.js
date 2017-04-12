@@ -2,11 +2,13 @@ import { EventEmitter } from 'events';
 import AppDispatcher from '../utils/AppDispatcher';
 import { AppActionTypes } from '../utils/AppActionCreator';
 import OceansJson from '../../data/oceans.json';
-import DestinationsJson from '../../data/destinations.json';
-import PresidentialTerms from '../../data/terms.json';
-import SOSTerms from '../../data/termsSOS.json';
-import Regions from '../../data/regions.json';
+//import DestinationsJson from '../../data/destinations.json';
+//import PresidentialTerms from '../../data/terms.json';
+import travels from '../../data/presTerms.json';
+//import SOSTerms from '../../data/termsSOS.json';
 import RegionsMetadata from '../../data/regionsMetadata.json';
+import PresYearData from '../../data/presYearData.json';
+import SOSYearData from '../../data/sosYearData.json';
 
 import d3 from 'd3';
 
@@ -14,24 +16,25 @@ const DataStore = {
 
   data: {
     firstYear: 1905,
-    lastYear: 2015,
+    lastYear: 2016,
     startDate: '1905-04-03',
-    endDate: '2015-12-12',
-    years: [...Array(111).keys()].map(num => num+1905),
+    endDate: '2017-01-20',
+    years: [...Array(112).keys()].map(num => num+1905),
     tau: 2 * Math.PI,
     zoomFactor: 10,
-    daysDuration: 40797, // this._dateDiff('1905-01-01', '2016-12-31'),
+    daysDuration: 40837, // this._dateDiff('1905-01-01', '2016-12-31'),
     selectedOffice: 'president',
     selectedId: 44,
-    presidentialDestinationsByYear: [],
-    sosDestinationsByYear: [],
+    presidentialDestinationsByYear: PresYearData,
+    sosDestinationsByYear: SOSYearData,
     selectedLocationIds: [],
     inspectedLocationIds: [],
-    detailText: null
+    detailText: null,
+    maxDistance: 18607474, // DestinationsJson.features.reduce((a,b) => Math.max(a,b.properties.distance), 0);
+    maxVisits: 94
   },
 
   _dateDiff: function (date1, date2) {
-    date1 = (date1 < this.data.startDate) ? this.data.startDate : date1;
     let d1 = date1.split('-').map(num => parseInt(num)),
       d2 = date2.split('-').map(num => parseInt(num)),
       dO1 = new Date(d1[0], d1[1]-1, d1[2], 0, 0, 0, 0),
@@ -42,38 +45,67 @@ const DataStore = {
     return diffDays;
   },
 
-  _parseDestinationsByLocation: function(destinations) {
-    let theData = [];
+  _parseRawData: function() {
+    let pres = PresidentialTerms
+      .map(p => {
+        p.start_date = this._getAdjustedTerm(p.number, 'president')[0];
+        p.end_date = this._getAdjustedTerm(p.number, 'president')[1];
+        p.office = 'p';
+        delete p.birth_year;
+        delete p.death_year;
+        delete p.party;
+        return p;
+      });
 
-    destinations.forEach(destination => {
-      let lng = destination.geometry.coordinates[0],
-        lat = destination.geometry.coordinates[1],
-        cityId = destination.properties.city_id,
-        dataForLocation = theData.filter(location => (lat == location.lat && lng == location.lng));
-
-      if (dataForLocation.length == 0) {
-        theData.push({
-          lat: lat,
-          lng: lng,
-          cityId: cityId,
-          regionClass: destination.properties.new_region.replace(/ /g,'').toLowerCase(),
-          visits: [
-            destination.properties
-          ]
-        });
-      } else {
-        dataForLocation[0].visits.push(destination.properties);
-      }
+    let sos = SOSTerms.map(p => {
+      p.start_date = this._getAdjustedTerm(p.number, 'sos')[0];
+      p.end_date = this._getAdjustedTerm(p.number, 'sos')[1];
+      p.office = 's';
+      return p;
     });
-
-    return theData;
+    pres = pres.map(p => {
+      p.visits = this._cleanupDestinations(p.number, 'president');
+      return p;
+    });
+    sos = sos.map(p => {
+      p.visits = this._cleanupDestinations(p.number, 'sos');
+      return p;
+    });
+    return pres.concat(sos);
   },
 
-  parseData: function () {
-    this.data.presidentialDestinationsByYear = this._parseDestinationsByYear('president');
-    this.data.sosDestinationsByYear = this._parseDestinationsByYear('sos');
-    this.data.daysDuration = this._dateDiff(this.data.startDate, this.data.endDate);
-    this.emit(AppActionTypes.storeChanged);
+  _getSimplifiedDestinationsForOfficeholder: function(id, office) {
+    return  DestinationsJson.features
+      .filter(destination => destination.properties.num == id && destination.properties.position.toLowerCase() == office)
+      .sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1);
+  },
+
+  _cleanupDestinations: function(id, office) {
+    return  this._getSimplifiedDestinationsForOfficeholder(id,office).map(visit => {
+      delete visit.properties.city_id;
+      delete visit.properties.num;
+      delete visit.properties.pres_id;
+      delete visit.properties.pres_sos;
+      visit.properties.distance = Math.round(visit.properties.distance);
+      return visit;
+    });
+  },
+
+  _getTerm: function(id, office) {
+    let terms = (office == 'president') ? PresidentialTerms : SOSTerms,
+      officeholder = terms.filter(executive => executive.number == id)[0],
+      took_office = (officeholder.took_office > this.data.startDate) ? officeholder.took_office : this.data.startDate,
+      left_office = (officeholder.left_office < this.data.endDate) ? officeholder.left_office : this.data.endDate; 
+    return [took_office, left_office];
+  },
+
+  _getAdjustedTerm: function(id, office) {
+    let term = this._getTerm(id,office),
+      visits = this._getSimplifiedDestinationsForOfficeholder(id, office),
+      firstDate = (visits.length > 0 && visits[0].properties.date_convert < term[0]) ? visits[0].properties.date_convert.substring(0,10) : term[0],
+      lastDate = (visits.length > 0 && visits[visits.length - 1].properties.date_convert > term[1]) ? visits[visits.length - 1].properties.date_convert.substring(0,10) : term[1];
+
+    return [firstDate, lastDate];
   },
 
   _parseDestinationsByYear: function(office) {
@@ -131,16 +163,69 @@ const DataStore = {
     return theData;
   },
 
+  _getMaxVisits: function() {
+    let yearCounts = [],
+      max;
+    travels
+      .filter(o => o.office == 's')
+      .forEach(o => {
+        o.visits.forEach(v => {
+          let year = parseInt(v.properties.date_convert.substring(0,4));
+          yearCounts[year] = (yearCounts[year]) ? yearCounts[year] + 1 : 1;
+        });
+      });
+    let counts = Object.keys(yearCounts).map(year => yearCounts[year]);
+    return Math.max(...counts);
+  },
+
+
+
+  _parseDestinationsByLocation: function(destinations) {
+    let theData = [];
+
+    destinations.forEach(destination => {
+      let lng = destination.geometry.coordinates[0],
+        lat = destination.geometry.coordinates[1],
+        cityId = destination.properties.city_id,
+        dataForLocation = theData.filter(location => (lat == location.lat && lng == location.lng));
+
+      if (dataForLocation.length == 0) {
+        theData.push({
+          lat: lat,
+          lng: lng,
+          cityId: cityId,
+          regionClass: destination.properties.new_region.replace(/ /g,'').toLowerCase(),
+          visits: [
+            destination.properties
+          ]
+        });
+      } else {
+        dataForLocation[0].visits.push(destination.properties);
+      }
+    });
+
+    return theData;
+  },
+
+  _constrainedDate(date) {
+    date = (date.substring(0,10) > this.data.startDate) ? date.substring(0,10) : this.data.startDate;
+    date = (date.substring(0,10) < this.data.endDate) ? date.substring(0,10) : this.data.endDate;
+    return date;
+  },
+
   setSelected: function(id, office) {
+    if (this.hasSelectedLocation()) {
+      var [lat, lng] = this.getDestinationDetails([this.data.selectedLocationIds[0]])[0].geometry.coordinates;
+    }
+
     this.data.selectedId = id;
     this.data.selectedOffice = office;
 
     // if there are selected visits, see if the new selection visited the same place
     if (this.hasSelectedLocation()) {
-      let city_id = this.getDestinationDetails(this.data.selectedLocationIds)[0].properties.city_id,
-        theDestination = this.getDestinationsForSelected().filter(destination => destination.cityId == city_id),
-        destinationIds = (theDestination.length > 0) ? theDestination[0].visits.map(visit => visit.cartodb_id) : [];
-
+      let destinationIds = this.getSimplifiedDestinationsForSelected()
+        .filter(v => v.geometry.coordinates[0] == lat && v.geometry.coordinates[1] == lng)
+        .map(v => v.properties.cartodb_id);
       this.setSelectedVisits(destinationIds);
     }
 
@@ -181,35 +266,26 @@ const DataStore = {
   
   getOceanPolygons: function() { return OceansJson.features; },
 
-  getRegionsPolygons: function() { return Regions.features; },
-
-  getDestinations: function() { return DestinationsJson.features; },
-
   getDestinationsByYear: function() { return (this.data.selectedOffice == 'president') ? this.data.presidentialDestinationsByYear : this.data.sosDestinationsByYear; },
 
-  getDestinationDetails: function(ids) { return ids.map(id => this.getDestination(id)).sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1); },
+  getDestinationDetails: function(ids) { return ids.map(id => this.getSelectedData().visits.filter(v => v.properties.cartodb_id == parseInt(id))[0]).sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1); },
 
-  getDestination: function(id) { return DestinationsJson.features.filter(destination => destination.properties.cartodb_id == id)[0]; },
+  getPresidentialTerms: function() { return this.getTermsForOffice('p'); },
 
-  getCityIdForSelected: function() { return (this.data.selectedLocationIds.length > 0) ? this.getDestinationDetails(this.data.selectedLocationIds)[0].properties.city_id : false; } ,
+  getSOSTerms: function() { return this.getTermsForOffice('s'); },
 
-  getPresidentialTerms: function() {
-    return PresidentialTerms.map((presidency, i) => {
-      presidency.startAngle = this.getDateAngle(this._constrainedDate(presidency.took_office));
-      presidency.endAngle = this.getDateAngle(this._constrainedDate(presidency.left_office));
-      return presidency;
-    });
-  },
-
-  getSOSTerms: function() { 
-    return SOSTerms.map((sos, i) => {
-      sos.startAngle = this.getDateAngle(this._constrainedDate(sos.took_office));
-      sos.endAngle = this.getDateAngle(this._constrainedDate(sos.left_office));
-      return sos;
-    });
+  getTermsForOffice: function(office) {
+    return travels
+      .filter(officeholder => officeholder.office == office)
+      .map((officeholder, i) => {
+        officeholder.startAngle = this.getDateAngle(this._constrainedDate(officeholder.took_office));
+        officeholder.endAngle = this.getDateAngle(this._constrainedDate(officeholder.left_office));
+        return officeholder;
+      });
   },
 
   getDateAngle: function(date) {
+    date = this._constrainedDate(date);
     let adjustedDuration = this.data.daysDuration + (this.data.zoomFactor - 1) * this.getDuration(this.data.selectedId, this.data.selectedOffice),
       legendAngle = this.data.tau * 0.075,
       nonlegendAngle = this.data.tau - legendAngle;
@@ -219,21 +295,23 @@ const DataStore = {
     }
     // the selected 
     else if (this.dateDuringSelected(date)) {
-      return legendAngle/2 + (this._dateDiff(this.data.startDate, this.getSelectedData().took_office) / adjustedDuration + this._dateDiff(this.getSelectedData().took_office, date) * this.data.zoomFactor / adjustedDuration) * nonlegendAngle;
+      return legendAngle/2 + (this._dateDiff(this.data.startDate, this._constrainedDate(this.getSelectedData().took_office)) / adjustedDuration + this._dateDiff(this._constrainedDate(this.getSelectedData().took_office), date) * this.data.zoomFactor / adjustedDuration) * nonlegendAngle;
     } else if (this.dateAfterSelected(date, this.data.selectedId, this.data.selectedOffice)) {
-      return legendAngle/2 + (this._dateDiff(this.data.startDate, this.getSelectedData().took_office) / adjustedDuration + this._dateDiff(this.getSelectedData().took_office, this.getSelectedData().left_office) * this.data.zoomFactor / adjustedDuration + this._dateDiff(this.getSelectedData().left_office, date) / adjustedDuration) * nonlegendAngle;
+      return legendAngle/2 + (this._dateDiff(this.data.startDate, this._constrainedDate(this.getSelectedData().took_office)) / adjustedDuration + this._dateDiff(this._constrainedDate(this.getSelectedData().took_office), this.getSelectedData().left_office) * this.data.zoomFactor / adjustedDuration + this._dateDiff(this.getSelectedData().left_office, date) / adjustedDuration) * nonlegendAngle;
     }
   },
 
-  dateBeforeSelected: function(date) { return date < this.getSelectedData().took_office; },
+  getTermsRingAngles: function() { return [this.data.tau * 0.075, this.data.tau - this.data.tau * 0.075]; },
 
-  dateDuringSelected: function(date) { return date >= this.getSelectedData().took_office && date <= this.getSelectedData().left_office; },
+  dateBeforeSelected: function(date) { return date.substring(0,10) <= this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).took_office); },
 
-  dateAfterSelected: function(date) { return date > this.getSelectedData().left_office;  },
+  dateDuringSelected: function(date) { return date > this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).took_office) && date <= this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).left_office); },
+
+  dateAfterSelected: function(date) { return date > this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).left_office);  },
 
   yearsForSelected: function() {
     let years = [];
-    for(let year = parseInt(this.getSelectedData().took_office.substring(0,4)); year <= parseInt(this.getSelectedData().left_office.substring(0,4)); year++) {
+    for(let year = parseInt(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).took_office.substring(0,4)); year <= parseInt(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).left_office.substring(0,4)); year++) {
       years.push(year);
     }
     return years;
@@ -245,7 +323,7 @@ const DataStore = {
       for (let monthNum=1; monthNum <= 12; monthNum++) {
         let month = ('0' + monthNum).slice(-2),
           firstDate = year + '-' + month + '-01',
-          lastDate = year + '-' + month + '-' + (new Date(2015, monthNum - 1, 0)).getDate();
+          lastDate = year + '-' + month + '-' + (new Date(2016, monthNum - 1, 0)).getDate();
         if (this.dateDuringSelected(firstDate) || this.dateDuringSelected(lastDate)) {
           months.push(year + '-' + month);
         }
@@ -256,34 +334,18 @@ const DataStore = {
 
   isSelectedYear(year) { return this.yearsForSelected().indexOf(year) !== -1; },
 
-  getDuration: function(id, office) {
-    return this._dateDiff(...this.getTerm(id, office));
-  },
+  getDuration: function(id, office) { return this._dateDiff(...this.getTerm(id, office)); },
 
-  getTerm: function(id, office) {
-    let terms = (office == 'president') ? PresidentialTerms : SOSTerms,
-      officeholder = terms.filter(executive => executive.number == id)[0],
-      took_office = (officeholder.took_office > this.data.startDate) ? officeholder.took_office : this.data.startDate,
-      left_office = (officeholder.left_office < this.data.endDate) ? officeholder.left_office : this.data.endDate; 
-    return [took_office, left_office];
-  },
-
-  getTermPercent: function(id, office) {
-    let adjustedDuration = this.data.daysDuration + (this.data.zoomFactor - 1) * this.getDuration(this.data.selectedId, this.data.selectedOffice);
-    return (id !== this.data.selectedId) ? this.getDurationofPresidency(id) / adjustedDuration : this.getDurationofPresidency(id) / adjustedDuration * this.data.zoomFactor;
-  },
-
-  getDaysDurationUnselected: function(selectedId) {
-    return this.data.daysDuration - this.getDurationofPresidency(selectedId);
-  },
+  getTerm: function(id, office) { return [this._constrainedDate(this.getOfficeholderData(id,office).took_office), this._constrainedDate(this.getOfficeholderData(id,office).left_office)]; },
 
   getDestinationsForSelected: function() { return this._parseDestinationsByLocation(this.getSimplifiedDestinationsForSelected()); },
 
-  getSimplifiedDestinationsForSelected: function() { return DestinationsJson.features.filter(destination => this.dateDuringSelected(destination.properties.date_convert) && destination.properties.position.toLowerCase() == this.data.selectedOffice).sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1); },
+  getSimplifiedDestinationsForSelected: function() { return this.getSimplifiedDestinationsForOfficeholder(this.data.selectedId, this.data.selectedOffice); },
 
   getSimplifiedDestinationsForOfficeholder: function(id, office) {
-    let term = this.getTerm(id, office);
-    return DestinationsJson.features.filter(destination => destination.properties.date_convert >= term[0] && destination.properties.date_convert <= term[1] && destination.properties.position.toLowerCase() == this.data.selectedOffice).sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1);
+    return travels
+      .filter(officeholder => officeholder.number == id && officeholder.office == office.substring(0,1))[0]
+      .visits;
   },
 
   getNextDestinationIdSelected: function() {
@@ -297,20 +359,6 @@ const DataStore = {
       previousId = destinations.findIndex(destination => destination.properties.cartodb_id == this.data.selectedLocationIds[0]) - 1;
     return (destinations[previousId]) ? destinations[previousId].properties.cartodb_id : null;
   },
-
-  getOfficeholdersWhoVisited(cityId) {
-    let visitors = [],
-      visitsToCity = DestinationsJson.features.filter(destination => destination.properties.city_id == cityId);
-    visitsToCity.forEach(destination => {
-      let visitor = destination.properties.position.toLowerCase() + '-' + destination.properties.pres_id;
-      if (visitors.indexOf(visitor) == -1) {
-        visitors.push(visitor);
-      }
-    });
-    return visitors;
-  },
-
-  getOfficeholdersWhoVisitedSelected() { return this.getOfficeholdersWhoVisited(this.getCityIdForSelected()); },
 
   getRegionsVisited() { 
     return this.getSimplifiedDestinationsForSelected().map(destination => destination.properties.new_region.replace(/ /g,'').toLowerCase()).filter((region, pos, self) => self.indexOf(region) == pos && region !== 'u.s'); 
@@ -338,40 +386,77 @@ const DataStore = {
     });
   },
 
-  getMaxDistance() { return DestinationsJson.features.reduce((a,b) => Math.max(a,b.properties.distance), 0); },
+  getMaxDistance() { return this.data.maxDistance; },
 
-  visitedRegionDuring(region, date1, date2) {
-    DestinationsJson.features.forEach(destination => {
-      if (destination.properties.new_region == region && destination.properties.date_convert >= date1 && destination.properties.date_convert <= date2) {
-        return true;
-      }      
+  getMaxVisits: function() { return this.data.maxVisits; },
+
+  getOfficeholderData(id, office) { return travels.filter(officeholder => officeholder.number == id && officeholder.office == office.substring(0,1))[0]; },
+
+  getSelectedData() { return this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice); },
+
+  getOfficeholderStartAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).took_office)); },
+
+  getOfficeholderEndAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).left_office)); },
+
+  getOfficeholderAdjustedStartAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).start_date)); },
+
+  getOfficeholderAdjustedEndAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).end_date)); },
+
+  getRegionMetadata(slug) { return RegionsMetadata.filter(region => region.slug == slug)[0]; },
+
+  getTimelineRotation: function() { console.log(this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())); return 360 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2 / Math.PI * 180; }, 
+
+  getTimelineRotationRadians: function() { return Math.PI * 2 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2; }, 
+
+/* 
+  OLDgetPresidentialTerms: function() {
+    return PresidentialTerms.map((presidency, i) => {
+      presidency.startAngle = this.getDateAngle(this._constrainedDate(presidency.took_office));
+      presidency.endAngle = this.getDateAngle(this._constrainedDate(presidency.left_office));
+      return presidency;
     });
-    return false;
   },
 
-  getDestinationsByRegion: function() {
-    let theData = {};
-    DestinationsJson.features.forEach(destination => {
-      let year = destination.properties.date_convert.substring(0,4),
-        region = destination.properties.new_region.replace(/ /g,'').toLowerCase();
-      theData[year] = (theData[year]) ? theData[year] : {
-        canada: 0,
-        westerneurope: 0,
-        easterneuropeandcentralasia: 0,
-        latinamerica: 0,
-        middleeast: 0,
-        eastasia: 0,
-        africa: 0,
-        southasia: 0,
-        oceania: 0
-      };
-      theData[year][region] += 1;
-    });
+  OLDdateBeforeSelected: function(date) { return date < this.getAdjustedTerm(this.data.selectedId, this.data.selectedOffice)[0]; },
 
-    return theData;
+  OLDdateDuringSelected: function(date) { return date >= this.getAdjustedTerm(this.data.selectedId, this.data.selectedOffice)[0] && date <= this.getAdjustedTerm(this.data.selectedId, this.data.selectedOffice)[1]; },
+
+  OLDdateAfterSelected: function(date) { return date > this.getAdjustedTerm(this.data.selectedId, this.data.selectedOffice)[1];  },
+
+  OLDgetTerm: function(id, office) {
+    let terms = (office == 'president') ? PresidentialTerms : SOSTerms,
+      officeholder = terms.filter(executive => executive.number == id)[0],
+      took_office = (officeholder.took_office > this.data.startDate) ? officeholder.took_office : this.data.startDate,
+      left_office = (officeholder.left_office < this.data.endDate) ? officeholder.left_office : this.data.endDate; 
+    return [took_office, left_office];
   },
 
-  getMaxVisits: function() {
+  OLDgetTerm: function(id, office) {
+    let terms = (office == 'president') ? PresidentialTerms : SOSTerms,
+      officeholder = terms.filter(executive => executive.number == id)[0],
+      took_office = (officeholder.took_office > this.data.startDate) ? officeholder.took_office : this.data.startDate,
+      left_office = (officeholder.left_office < this.data.endDate) ? officeholder.left_office : this.data.endDate; 
+    return [took_office, left_office];
+  },
+
+  OLDgetOfficeholderData(id, office) { 
+    let terms = (office == 'president') ? PresidentialTerms : SOSTerms;
+    return terms.filter(officeholder => officeholder.number == id)[0];
+  },
+
+  OLDgetOfficeholdersWhoVisited(cityId) {
+    let visitors = [],
+      visitsToCity = DestinationsJson.features.filter(destination => destination.properties.city_id == cityId);
+    visitsToCity.forEach(destination => {
+      let visitor = destination.properties.position.toLowerCase() + '-' + destination.properties.pres_id;
+      if (visitors.indexOf(visitor) == -1) {
+        visitors.push(visitor);
+      }
+    });
+    return visitors;
+  },
+
+  OLDgetMaxVisits: function() {
     let yearCounts = {};
     DestinationsJson.features.filter(destination => destination.properties.position.toLowerCase() == 'sos' ).forEach(destination => {
       let year = parseInt(destination.properties.date_convert.substring(0,4));
@@ -381,46 +466,15 @@ const DataStore = {
     return Object.keys(yearCounts).reduce((max, year) => Math.max(yearCounts[year], max), 0);
   },
 
-  getPresidencyArcRadians: function(id, selectedId) {
-    let unselectedPercent = this.getDurationofPresidency(id) / this.getDaysDurationUnselected(selectedId);
-    return unselectedPercent * Math.PI;
+  OLDgetSOSTerms: function() { 
+    return SOSTerms.map((sos, i) => {
+      sos.startAngle = this.getDateAngle(this._constrainedDate(sos.took_office));
+      sos.endAngle = this.getDateAngle(this._constrainedDate(sos.left_office));
+      return sos;
+    });
   },
+*/
 
-  getOfficeholderData(id, office) { 
-    let terms = (office == 'president') ? PresidentialTerms : SOSTerms;
-    return terms.filter(officeholder => officeholder.number == id)[0];
-  },
-
-  getSelectedData() { return this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice); },
-
-  getOfficeholderStartAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).took_office)); },
-
-  getOfficeholderEndAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).left_office)); },
-
-  _constrainedDate(date) {
-    date = (date > this.data.startDate) ? date : this.data.startDate;
-    date = (date < this.data.endDate) ? date : this.data.endDate;
-    return date;
-  },
-
-  getDateRotationSelected: function(date, selectedId) {
-    let lastSelectedDate = PresidentialTerms.filter(presidency => presidency.number == selectedId)[0].left_office;
-    lastSelectedDate = (lastSelectedDate < this.data.endDate) ? lastSelectedDate : this.data.endDate;
-    if (date >= lastSelectedDate) {
-      return 90 + this._dateDiff(lastSelectedDate, date) / this.getDaysDurationUnselected(selectedId) * 180;
-    } else {
-      return this.getDateRotationSelected(this.data.endDate, selectedId) + this._dateDiff(this.data.startDate, date) / this.getDaysDurationUnselected(selectedId) * 180;
-    }
-  },
-
-
-  getDateAngleDegrees: function(date, selectedId) { return this.getDateAngle(date, selectedId) / this.data.tau * 360; },
-
-  getRegionMetadata(slug) { return RegionsMetadata.filter(region => region.slug == slug)[0]; },
-
-  getTimelineRotation: function() { return 360 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2 / Math.PI * 180; }, 
-
-  getTimelineRotationRadians: function() { return Math.PI * 2 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2; }, 
 };
 
 // Mixin EventEmitter functionality
@@ -430,7 +484,6 @@ Object.assign(DataStore, EventEmitter.prototype);
 DataStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
   case AppActionTypes.parseData:
-    DataStore.parseData();
     DataStore.setSelected(action.id, action.office);
     DataStore.setSelectedVisits(action.visits);
     break;
@@ -445,9 +498,6 @@ DataStore.dispatchToken = AppDispatcher.register((action) => {
     break;
   }
   return true;
-
-  
-
 });
 
 export default DataStore;

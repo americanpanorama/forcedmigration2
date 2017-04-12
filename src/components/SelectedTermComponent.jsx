@@ -5,6 +5,8 @@ import ReactDOM from 'react-dom';
 
 import ReactTransitionGroup from 'react-addons-transition-group';
 
+import DimensionsStore from '../stores/DimensionsStore.js';
+
 // utils
 // TODO: refactor to use same structure as PanoramaDispatcher;
 // Having `flux` as a dependency, and two different files, is overkill.
@@ -44,17 +46,21 @@ export default class SelectedTerm extends React.Component {
     callback();
   }
 
-  componentWillReceiveProps(nextProps) {}
+  componentWillReceiveProps(nextProps) {
+    if (this.state.d !== nextProps.graphArc.startAngle(nextProps.startAngle).endAngle(nextProps.endAngle)()) {
+      this.setState({
+        d: nextProps.graphArc.startAngle(nextProps.startAngle).endAngle(nextProps.endAngle)()
+      });
+    }
+  }
 
   render() {
     return (
       <path
         d={ this.state.d }
-        fill={ this.props.fill }
-        fillOpacity={ 1 }
-        transform={ 'translate(' + this.props.radius + ',' + this.props.radius + ')' }
-        stroke='#85C7F2'
+        transform={ 'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
         strokeWidth={ 1 }
+        className='termMask'
       /> 
     );
   }

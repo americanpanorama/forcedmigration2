@@ -105,9 +105,7 @@ export default class SteamGraph extends React.Component {
                 graphArc={ DimensionsStore.getMaskArc() }
                 startAngle={ DataStore.getOfficeholderStartAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) }
                 endAngle={ DataStore.getOfficeholderEndAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) }
-                radius={ DimensionsStore.getRadius()  }
                 key={ 'mask' + DataStore.getSelectedOffice() + DataStore.getSelectedId() }
-                fill={ '#111133' }
               />
             </ReactTransitionGroup>
 
