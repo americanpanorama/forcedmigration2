@@ -181,34 +181,22 @@ const DimensionsStore = {
       .outerRadius(this.getGraphOuterRadius());
   },
 
+  getVisitArc: function(distance, startAngle, endAngle) {
+    let radius = this.getDestinationDistance(distance);
+    return d3.svg.arc()
+      .innerRadius(radius - this.getPointRadius())
+      .outerRadius(radius + this.getPointRadius())
+      .startAngle(startAngle)
+      .endAngle(endAngle)
+      .cornerRadius(this.getPointRadius())();
+  },
+
   getDestinationDistance(distance) {
     let distanceScale = d3.scale.linear()
       .domain([0, DataStore.getMaxDistance()])
       .range([this.getGraphInnerRadius(), this.getGraphOuterRadius()]);
     return distanceScale(distance);
   },
-
-      // widthHeight: widthHeight,
-      // diameter: widthHeight * mapProportion,
-      // radius: ,
-      // ringWidth: widthHeight * (1 - mapProportion) / 2,
-      // graphRegionOffset: (widthHeight * (1 - mapProportion) / 2 - 60) / 9,
-      // detailsTop: window.innerHeight / 2 + widthHeight * mapProportion /2 *  0.1,
-      // detailsLeft: window.innerWidth / 2 - widthHeight * mapProportion /2 *  0.6,
-      // detailsWidth: widthHeight * mapProportion / 2 * 0.5,
-      // detailsHeight: widthHeight * mapProportion / 2 * 0.9,
-      // termRingsWidth: widthHeight * ringProportion / 12,
-      // graphWidth: widthHeight * ringProportion / 6,
-      // yearRingWidth: widthHeight * ringProportion / 6,
-      // sosInnerRadius: widthHeight * mapProportion / 2,
-      // sosOuterRadius: widthHeight * (mapProportion + termsProportion) / 2,
-      // presInnerRadius: widthHeight * (mapProportion + termsProportion) / 2,
-      // presOuterRadius: widthHeight * (mapProportion + termsProportion + termsProportion) / 2,
-      // graphInnerRadius: widthHeight * (mapProportion + termsProportion + termsProportion) / 2,
-      // graphOuterRadius: widthHeight * (mapProportion + termsProportion + termsProportion + graphProportion) / 2,
-      // yearTickInnerRadius: widthHeight * (mapProportion + termsProportion + termsProportion) / 2,
-      // yearTickOuterRadius: widthHeight * (mapProportion + termsProportion + termsProportion + graphProportion) / 2,
-      // yearLabelInnerRadius: widthHeight * (mapProportion + termsProportion + termsProportion + graphProportion) / 2
 
 };
 

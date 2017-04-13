@@ -62,10 +62,10 @@ export default class Details extends React.Component {
           
           <ul>
           { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds()).map((destination, i) => {
-            let d = new Date(destination.properties.date_convert.substring(0,10)),
+            let d = new Date(destination.properties.start_date),
               date = d.toLocaleString('en-us', { month: "long" }) + ' ' + d.getDate() + ', ' + d.getFullYear();
-            if (destination.properties.date_convert.split(',')[1]) {
-              let d1 = new Date(destination.properties.date_convert.split(',')[1]),
+            if (destination.properties.end_date) {
+              let d1 = new Date(destination.properties.end_date),
                 day1 = d.getDate(),
                 day2 = d1.getDate(),
                 month1 = d.toLocaleString('en-us', { month: "long" }),

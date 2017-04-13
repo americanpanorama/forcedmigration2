@@ -45,69 +45,6 @@ const DataStore = {
     return diffDays;
   },
 
-  _parseRawData: function() {
-    let pres = PresidentialTerms
-      .map(p => {
-        p.start_date = this._getAdjustedTerm(p.number, 'president')[0];
-        p.end_date = this._getAdjustedTerm(p.number, 'president')[1];
-        p.office = 'p';
-        delete p.birth_year;
-        delete p.death_year;
-        delete p.party;
-        return p;
-      });
-
-    let sos = SOSTerms.map(p => {
-      p.start_date = this._getAdjustedTerm(p.number, 'sos')[0];
-      p.end_date = this._getAdjustedTerm(p.number, 'sos')[1];
-      p.office = 's';
-      return p;
-    });
-    pres = pres.map(p => {
-      p.visits = this._cleanupDestinations(p.number, 'president');
-      return p;
-    });
-    sos = sos.map(p => {
-      p.visits = this._cleanupDestinations(p.number, 'sos');
-      return p;
-    });
-    return pres.concat(sos);
-  },
-
-  _getSimplifiedDestinationsForOfficeholder: function(id, office) {
-    return  DestinationsJson.features
-      .filter(destination => destination.properties.num == id && destination.properties.position.toLowerCase() == office)
-      .sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1);
-  },
-
-  _cleanupDestinations: function(id, office) {
-    return  this._getSimplifiedDestinationsForOfficeholder(id,office).map(visit => {
-      delete visit.properties.city_id;
-      delete visit.properties.num;
-      delete visit.properties.pres_id;
-      delete visit.properties.pres_sos;
-      visit.properties.distance = Math.round(visit.properties.distance);
-      return visit;
-    });
-  },
-
-  _getTerm: function(id, office) {
-    let terms = (office == 'president') ? PresidentialTerms : SOSTerms,
-      officeholder = terms.filter(executive => executive.number == id)[0],
-      took_office = (officeholder.took_office > this.data.startDate) ? officeholder.took_office : this.data.startDate,
-      left_office = (officeholder.left_office < this.data.endDate) ? officeholder.left_office : this.data.endDate; 
-    return [took_office, left_office];
-  },
-
-  _getAdjustedTerm: function(id, office) {
-    let term = this._getTerm(id,office),
-      visits = this._getSimplifiedDestinationsForOfficeholder(id, office),
-      firstDate = (visits.length > 0 && visits[0].properties.date_convert < term[0]) ? visits[0].properties.date_convert.substring(0,10) : term[0],
-      lastDate = (visits.length > 0 && visits[visits.length - 1].properties.date_convert > term[1]) ? visits[visits.length - 1].properties.date_convert.substring(0,10) : term[1];
-
-    return [firstDate, lastDate];
-  },
-
   _parseDestinationsByYear: function(office) {
     let theData = [];
     DestinationsJson.features.filter(destination => destination.properties.position.toLowerCase() == office).forEach(destination => {
@@ -170,7 +107,7 @@ const DataStore = {
       .filter(o => o.office == 's')
       .forEach(o => {
         o.visits.forEach(v => {
-          let year = parseInt(v.properties.date_convert.substring(0,4));
+          let year = parseInt(v.properties.start_date.substring(0,4));
           yearCounts[year] = (yearCounts[year]) ? yearCounts[year] + 1 : 1;
         });
       });
@@ -268,7 +205,7 @@ const DataStore = {
 
   getDestinationsByYear: function() { return (this.data.selectedOffice == 'president') ? this.data.presidentialDestinationsByYear : this.data.sosDestinationsByYear; },
 
-  getDestinationDetails: function(ids) { return ids.map(id => this.getSelectedData().visits.filter(v => v.properties.cartodb_id == parseInt(id))[0]).sort((a,b) => (a.properties.date_convert < b.properties.date_convert) ? -1 : 1); },
+  getDestinationDetails: function(ids) { return ids.map(id => this.getSelectedData().visits.filter(v => v.properties.cartodb_id == parseInt(id))[0]).sort((a,b) => (a.properties.start_date < b.properties.start_date) ? -1 : 1); },
 
   getPresidentialTerms: function() { return this.getTermsForOffice('p'); },
 
@@ -404,7 +341,7 @@ const DataStore = {
 
   getRegionMetadata(slug) { return RegionsMetadata.filter(region => region.slug == slug)[0]; },
 
-  getTimelineRotation: function() { console.log(this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())); return 360 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2 / Math.PI * 180; }, 
+  getTimelineRotation: function() { return 360 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2 / Math.PI * 180; }, 
 
   getTimelineRotationRadians: function() { return Math.PI * 2 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2; }, 
 
