@@ -50,7 +50,7 @@ export default class SteamGraph extends React.Component {
           x={ 0 }
           y={ DimensionsStore.getWidthHeight() / 2 + DimensionsStore.getRadius() }
           width={ DimensionsStore.getWidthHeight() }
-          height={ DimensionsStore.getWidthHeight() - (DimensionsStore.getWidthHeight() / 2 + DimensionsStore.getRadius()) }
+          height={ DimensionsStore.getMaskRectHeight() }
           className='timelineMask'
 
         />
@@ -63,22 +63,26 @@ export default class SteamGraph extends React.Component {
               r={ DimensionsStore.getRadius() + DimensionsStore.getTimelineWidth() / 2}
               strokeWidth={ DimensionsStore.getTimelineWidth() }
               className='timelineMask'
+              fill='lime'
             /> 
 
 
 
             {/* tick marks for distance */}
-            { [10, 7.5, 5, 2.5].map(milesAway => {
-              return (
-                <circle
-                  cx={DimensionsStore.getRadius()}
-                  cy={DimensionsStore.getRadius()}
-                  r={ DimensionsStore.getDestinationDistance(milesAway * 1000 * 1609.344) }
-                  className='distanceTicks'
-                  key={ 'tickDistance' + milesAway }
-                />
-              );
-            })}
+            { (DataStore.getSelectedId()) ?
+              [10, 7.5, 5, 2.5].map(milesAway => {
+                return (
+                  <circle
+                    cx={DimensionsStore.getRadius()}
+                    cy={DimensionsStore.getRadius()}
+                    r={ DimensionsStore.getDestinationDistance(milesAway * 1000 * 1609.344) }
+                    className='distanceTicks'
+                    key={ 'tickDistance' + milesAway }
+                  />
+                );
+              }) : ''
+            }
+
             <ReactTransitionGroup
               component='g' 
               transform={'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')'}
@@ -98,17 +102,19 @@ export default class SteamGraph extends React.Component {
               }) }   
             </ReactTransitionGroup>
 
-            <ReactTransitionGroup
-              key='selectedTerm'
-              component='g'
-            >
-              <SelectedTerm
-                graphArc={ DimensionsStore.getMaskArc() }
-                startAngle={ DataStore.getOfficeholderStartAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) }
-                endAngle={ DataStore.getOfficeholderEndAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) }
-                key={ 'mask' + DataStore.getSelectedOffice() + DataStore.getSelectedId() }
-              />
-            </ReactTransitionGroup>
+            { (DataStore.getSelectedId()) ?
+              <ReactTransitionGroup
+                key='selectedTerm'
+                component='g'
+              >
+                <SelectedTerm
+                  graphArc={ DimensionsStore.getMaskArc() }
+                  startAngle={ DataStore.getOfficeholderStartAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) }
+                  endAngle={ DataStore.getOfficeholderEndAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) }
+                  key={ 'mask' + DataStore.getSelectedOffice() + DataStore.getSelectedId() }
+                />
+              </ReactTransitionGroup> : ''
+            }
 
           { DataStore.getMonthsSelectedWithAngles().map((monthData) => {
             return (
@@ -132,7 +138,7 @@ export default class SteamGraph extends React.Component {
             className='destinationsRing' 
             transform={'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')'}
           >
-            { DataStore.getSimplifiedDestinationsForSelected().filter(d=>d.properties.length > 7).map((destination, i) => {
+            { DataStore.getSimplifiedDestinationsForSelected().filter(d=>d.properties.length > 14).map((destination, i) => {
               if (destination && destination.geometry && destination.geometry.coordinates) {
                 return (
                   <DestinationsMultiple
@@ -141,8 +147,8 @@ export default class SteamGraph extends React.Component {
                     endAngle={ DataStore.getDateAngle(destination.properties.end_date) }
                     originAngle={ (DataStore.getOfficeholderEndAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) + DataStore.getOfficeholderStartAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice())) / 2 }
                     key={ 'destinationRing2' + destination.properties.cartodb_id }
-                    selected={ DataStore.getVisibleLocationIds().indexOf(destination.properties.cartodb_id) !== -1 }
-                    unselected={ (DataStore.getVisibleLocationIds().indexOf(destination.properties.cartodb_id) == -1) && DataStore.hasVisibleLocation() }
+                    selected={ DataStore.isAVisibleLocation(destination.properties.cartodb_id) }
+                    unselected={ DataStore.hasVisibleLocation() && !DataStore.isAVisibleLocation(destination.properties.cartodb_id) }
                     onClick={ this.props.onClick }
                     onHover={ this.props.onHover }
                     onMouseLeave={ this.props.onMouseLeave }
@@ -151,12 +157,12 @@ export default class SteamGraph extends React.Component {
               }
             })}
           </ReactTransitionGroup>
-          
+
           <ReactTransitionGroup
             component='g' 
             className='destinationsRing' 
           >
-            { DataStore.getSimplifiedDestinationsForSelected().filter(d=>!d.properties.length || d.properties.length<=7).map((destination, i) => {
+            { DataStore.getSimplifiedDestinationsForSelected().filter(d=>!d.properties.length || d.properties.length <= 14).map((destination, i) => {
               if (destination && destination.geometry && destination.geometry.coordinates) {
                 return (
                   <DestinationsTimeline
@@ -164,8 +170,8 @@ export default class SteamGraph extends React.Component {
                     angle={ DataStore.getDateAngle(destination.properties.start_date) }
                     originAngle={ (DataStore.getOfficeholderEndAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice()) + DataStore.getOfficeholderStartAngle(DataStore.getSelectedId(), DataStore.getSelectedOffice())) / 2 }
                     key={ 'destinationRing' + destination.properties.cartodb_id }
-                    selected={ DataStore.getVisibleLocationIds().indexOf(destination.properties.cartodb_id) !== -1 }
-                    unselected={ (DataStore.getVisibleLocationIds().indexOf(destination.properties.cartodb_id) == -1) && DataStore.hasVisibleLocation() }
+                    selected={ DataStore.isAVisibleLocation(destination.properties.cartodb_id) }
+                    unselected={ DataStore.hasVisibleLocation() && !DataStore.isAVisibleLocation(destination.properties.cartodb_id) }
                     onClick={ this.props.onClick }
                     onHover={ this.props.onHover }
                     onMouseLeave={ this.props.onMouseLeave }

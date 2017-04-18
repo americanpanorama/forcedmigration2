@@ -1,9 +1,18 @@
 .details {
 
+
+
   .destinations {
+    overflow: hidden;
     position: fixed;
     text-align: left;
-    overflow-y: scroll;
+
+    .inner{
+      overflow-y: scroll;
+      margin-right: -20px;
+    }
+
+
 
 
     h3 {
@@ -16,6 +25,7 @@
 
     ul {
       list-style: none;
+      margin-right: 20px;
       
       
 
@@ -43,7 +53,7 @@
       &:after {
         content: "";
         display: block;
-        height: 500px;
+        padding-bottom: 50px;
         width: 100%;
       }
     }

@@ -80,7 +80,7 @@ export default class IntroModal extends React.Component {
               <h3>1905-2016</h3>
             </div>
             <img src={ './static/JFK_exiting_Air_Force_One.jpg' } className={ this.state.coverImgLoaded ? '' : 'loading' } />
-            <p>No sitting American president traveled outside the country before Theodore Roosevelt traveled to Panama in 1906 to see the construction of the Panama Canal. A century later Air Force One regularly carries the head of the executive branch to all corners of the world. The <cite>Executive Abroad</cite> maps the travels of presidents and secretaries of state since Roosevelt.</p>
+            <p>No sitting American president traveled outside the country before Theodore Roosevelt traveled to Panama in 1906 to see the construction of the Panama Canal. A century later Air Force One regularly carries the head of the executive branch to all corners of the world. The <cite>Executive Abroad</cite> maps the international trips of presidents and secretaries of state.</p>
             <div className='intro-modal-button' onClick={ () => this.setPage(1) }>Next</div>
           </div>
         </div>

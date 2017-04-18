@@ -38,12 +38,9 @@ export default class DestinationTimeline extends React.Component {
   componentWillLeave(callback) { callback(); }
 
   componentWillReceiveProps(nextProps) { 
-    if (this.state.cx !== DimensionsStore.getTimelineDestinationX(nextProps.angle, nextProps.destination.properties.distance)) {
-      this.setState({
-        cx: DimensionsStore.getTimelineDestinationX(nextProps.angle, nextProps.destination.properties.distance),
-        cy: DimensionsStore.getTimelineDestinationY(nextProps.angle, nextProps.destination.properties.distance)
-      });
-    }
+    this.setState({
+      d: DimensionsStore.getVisitArc(this.props.destination.properties.distance, DataStore.getDateAngle(this.props.destination.properties.start_date), DataStore.getDateAngle(this.props.destination.properties.end_date))
+    });
   }
 
   render() {

@@ -53,42 +53,49 @@ export default class Details extends React.Component {
           className='destinations'
           style= { DimensionsStore.getDetailsStyle() }
         >
-          <h3 style= { DimensionsStore.getDetailsDestinationStyle() }>
-            { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.city + ', ' + DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.country}
-          </h3>
-        {/* <h4 style= { DimensionsStore.getDetailsOfficeholderStyle() }>
-            { ((DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.position == 'SOS') ? 'Secretary of State ' : 'President ')  + DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.pres_sos}
-          </h4> */}
-          
-          <ul>
-          { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds()).map((destination, i) => {
-            let d = new Date(destination.properties.start_date),
-              date = d.toLocaleString('en-us', { month: "long" }) + ' ' + d.getDate() + ', ' + d.getFullYear();
-            if (destination.properties.end_date) {
-              let d1 = new Date(destination.properties.end_date),
-                day1 = d.getDate(),
-                day2 = d1.getDate(),
-                month1 = d.toLocaleString('en-us', { month: "long" }),
-                month2 = d1.toLocaleString('en-us', { month: "long" }),
-                year1 = d.getFullYear(),
-                year2 = d1.getFullYear();
-              if (year1 != year2) {
-                date = month1 + ' ' + day1 + ', ' + year1 + '-' + month2 + ' ' + day2 + ', ' + year2;
-              } else if (month1 != month2) {
-                date = month1 + ' ' + day1 + '-' + month2 + ' ' + day2 + ', ' + year1;
-              } else if (day1 != day2) {
-                date = month1 + ' ' + day1 + '-' + day2+ ', ' + year1;
+          <div
+            className='inner'
+            style= { DimensionsStore.getDetailsInnerStyle() }
+          >
+            <h3 style= { DimensionsStore.getDetailsDestinationStyle() }>
+              { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.city + ', ' + DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.country}
+            </h3>
+          {/* <h4 style= { DimensionsStore.getDetailsOfficeholderStyle() }>
+              { ((DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.position == 'SOS') ? 'Secretary of State ' : 'President ')  + DataStore.getDestinationDetails(DataStore.getVisibleLocationIds())[0].properties.pres_sos}
+            </h4> */}
+            
+            <ul>
+            { DataStore.getDestinationDetails(DataStore.getVisibleLocationIds()).map((destination, i) => {
+              let dp = destination.properties.start_date.split('-'),
+                d = new Date(dp[0], dp[1]-1, dp[2]),
+                date = d.toLocaleString('en-us', { month: "long" }) + ' ' + d.getDate() + ', ' + d.getFullYear();
+              if (destination.properties.end_date) {
+                let d1p = destination.properties.end_date.split('-'),
+                  d1 = new Date(d1p[0], d1p[1]-1, d1p[2]),
+                  day1 = d.getDate(),
+                  day2 = d1.getDate(),
+                  month1 = d.toLocaleString('en-us', { month: "long" }),
+                  month2 = d1.toLocaleString('en-us', { month: "long" }),
+                  year1 = d.getFullYear(),
+                  year2 = d1.getFullYear();
+                if (year1 != year2) {
+                  date = month1 + ' ' + day1 + ', ' + year1 + '-' + month2 + ' ' + day2 + ', ' + year2;
+                } else if (month1 != month2) {
+                  date = month1 + ' ' + day1 + '-' + month2 + ' ' + day2 + ', ' + year1;
+                } else if (day1 != day2) {
+                  date = month1 + ' ' + day1 + '-' + day2+ ', ' + year1;
+                }
               }
-            }
-            return (
-              <li key={ 'detail' + i }>
-                <span className='date'>{ date }</span>
-                <br />
-                <span className='description'>{ destination.properties.remarks }</span>
-              </li>
-            );
-          })}
-          </ul>
+              return (
+                <li key={ 'detail' + i }>
+                  <span className='date'>{ date }</span>
+                  <br />
+                  <span className='description'>{ destination.properties.remarks }</span>
+                </li>
+              );
+            })}
+            </ul>
+          </div>
         </div>
       </div>
     );

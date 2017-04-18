@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 
 import ReactTransitionGroup from 'react-addons-transition-group';
 
+import DataStore from '../stores/DataStore.js';
 import DimensionsStore from '../stores/DimensionsStore.js';
 
 // utils
@@ -20,7 +21,9 @@ export default class SelectedTerm extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
-      d: this.props.graphArc.startAngle(this.props.startAngle).endAngle(this.props.endAngle)()
+      d: this.props.graphArc.startAngle(this.props.startAngle).endAngle(this.props.endAngle)(),
+      rotate: (this.props.endAngle + 0.01) / Math.PI * 180,
+      rotateLabel: (this.props.endAngle + 0.10) / Math.PI * 180 - 90,
     };
   }
 
@@ -36,7 +39,9 @@ export default class SelectedTerm extends React.Component {
       })
       .each('end', () => {
         this.setState({
-          d: this.props.graphArc.startAngle(this.props.startAngle).endAngle(this.props.endAngle)()
+          d: this.props.graphArc.startAngle(this.props.startAngle).endAngle(this.props.endAngle)(),
+          rotate: (this.props.endAngle + 0.01) / Math.PI * 180,
+          rotateLabel: (this.props.endAngle + 0.105) / Math.PI * 180 - 90,
         });
         callback();
       });
@@ -49,19 +54,59 @@ export default class SelectedTerm extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.state.d !== nextProps.graphArc.startAngle(nextProps.startAngle).endAngle(nextProps.endAngle)()) {
       this.setState({
-        d: nextProps.graphArc.startAngle(nextProps.startAngle).endAngle(nextProps.endAngle)()
+        d: nextProps.graphArc.startAngle(nextProps.startAngle).endAngle(nextProps.endAngle)(),
+        rotate: (this.props.endAngle + 0.01) / Math.PI * 180,
+        rotateLabel: (this.props.endAngle + 0.105) / Math.PI * 180 - 90,
       });
     }
   }
 
   render() {
     return (
-      <path
-        d={ this.state.d }
-        transform={ 'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
-        strokeWidth={ 1 }
-        className='termMask'
-      /> 
+      <g>
+        <path
+          d={ this.state.d }
+          transform={ 'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
+          strokeWidth={ 1 }
+          className='termMask'
+        />
+
+        {/* axis label */}
+
+        <path
+          d={ this.props.graphArc.startAngle(this.props.endAngle).endAngle(this.props.endAngle + 0.105)() }
+          transform={ 'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
+          className='axisLabelMask'
+        />
+
+        <text
+          x={ DimensionsStore.getTimelineDestinationX(this.props.endAngle + 0.10, 6000 * 1609.344) }
+          y={ DimensionsStore.getTimelineDestinationY(this.props.endAngle + 0.10, 6000 * 1609.344) }
+          textAnchor='middle'
+          className='axisLabel'
+          fontSize={ DimensionsStore.getTimelineLabelSize() }
+          transform={ 'rotate(' + this.state.rotateLabel + ' ' + DimensionsStore.getTimelineDestinationX(this.props.endAngle + 0.10, 6000 * 1609.344) + ' ' + DimensionsStore.getTimelineDestinationY(this.props.endAngle + 0.10, 6000 * 1609.344) + ')'  }
+        >
+          miles from DC
+        </text>
+
+        { [10, 7.5, 5, 2.5].map(milesAway => {
+          return (
+            <text
+              x={ DimensionsStore.getTimelineDestinationX(this.props.endAngle + 0.01, milesAway * 1000 * 1609.344) }
+              y={ DimensionsStore.getTimelineDestinationY(this.props.endAngle + 0.01, milesAway * 1000 * 1609.344) }
+              textAnchor='start'
+              alignmentBaseline='middle'
+              fontSize={ DimensionsStore.getTimelineLabelSize() }
+              className='axisLabel'
+              key={ 'tickDistanceLabel' + milesAway }
+              transform={ 'rotate(' + this.state.rotate + ' ' + DimensionsStore.getTimelineDestinationX(this.props.endAngle + 0.01, milesAway * 1000 * 1609.344) + ' ' + DimensionsStore.getTimelineDestinationY(this.props.endAngle + 0.01, milesAway * 1000 * 1609.344) + ')'  }
+            >
+              { milesAway + 'K' }
+            </text>
+          );
+        })}
+      </g>
     );
   }
 

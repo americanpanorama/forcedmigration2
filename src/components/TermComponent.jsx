@@ -56,7 +56,7 @@ export default class Term extends React.Component {
         .duration(750)
         .attrTween('transform', (d,i,a) => {
           let interpolate = d3.interpolate(this.state.rotate, (this.props.startAngle / Math.PI + (this.props.endAngle - this.props.startAngle) / (Math.PI * 2)) * 180);
-          return (t) => { return 'rotate(' + interpolate(t) + ',' + this.props.radius + ',' + this.props.radius + ')'; };
+          return (t) => { return 'rotate(' + interpolate(t) + ',' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')'; };
         })
         .each('end', () => {
           this.setState({
@@ -71,14 +71,14 @@ export default class Term extends React.Component {
       <g key={'termArc' + this.props.id}>
         <path
           d={ this.props.theArc.startAngle(this.state.startAngle).endAngle(this.state.endAngle)() }
-          transform={ 'translate(' + this.props.radius + ',' + this.props.radius + ')' }
+          transform={ 'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
           id={ this.props.id }
           onClick={ this.props.onOfficeholderSelected }
-          className={ ((this.props.selected) ? 'selected' : '') + ((this.props.visited) ? ' visited' : '') }
+          className={ this.props.className + ' ' + ((this.props.selected) ? 'selected' : '') + ((this.props.visited) ? ' visited' : '') }
         />
 
         <text 
-          transform={ 'rotate(' + this.state.rotate + ',' + this.props.radius + ',' + this.props.radius + ')' }
+          transform={ 'rotate(' + this.state.rotate + ',' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
           className={ (this.props.selected) ? 'selected' : '' }
 
         >
@@ -88,9 +88,10 @@ export default class Term extends React.Component {
             pointerEvents='none'
             fontSize={ DimensionsStore.getTermsLabelSize() }
           >
-            { this.props.label }
+            { (this.state.endAngle - this.state.startAngle > 4/180*Math.PI) ? this.props.label : '...' }
           </textPath>
-        </text>
+        </text> 
+
       </g>
     );
   }

@@ -1,4 +1,5 @@
 // import node modules
+import "babel-polyfill";
 import d3 from 'd3';
 import * as React from 'react';
 import ReactTransitionGroup from 'react-addons-transition-group';
@@ -56,7 +57,17 @@ class App extends React.Component {
   storeChanged() { this.setState({}); }
 
   onOfficeholderSelected(e) {
-    let [office, id] = e.target.id.split('-');
+    let office, id;
+    if (e.target.id == 'president' || e.target.id == 'sos') {
+      office = e.target.id;
+      id = null;
+    } else {
+      [office, id] = e.target.id.split('-');
+      if (id == DataStore.getSelectedId() && office == DataStore.getSelectedOffice()) {
+        id = null;
+      }
+    }
+
     AppActions.officeholderSelected(id, office);
     this.setState({ about: false });
   }

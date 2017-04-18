@@ -1,3 +1,12 @@
+.officelabel {
+  pointer-events: auto;
+  fill: transparent;
+  
+  .selected {
+    fill: $selected-term-color;
+  }
+}
+
 .terms {
     path {
       fill: transparent;
@@ -65,4 +74,13 @@ circle.timelineMask {
 
 rect.timelineMask {
   fill: $background-color;
+}
+
+.axisLabelMask {
+  fill: $background-color;
+  fill-opacity: 0.5;
+}
+
+.axisLabel {
+  fill: #bbb;
 }

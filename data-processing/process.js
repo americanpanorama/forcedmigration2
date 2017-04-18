@@ -62,13 +62,13 @@ var cleanupDestinations = function(id, office) {
       delete visit.properties.pres_sos;
       visit.properties.distance = Math.round(visit.properties.distance);
 
-      var dates = visit.properties.date_convert.split(',');
-      dates.forEach(date => {
-      	date = date.replace(/ /g,'');
-        if (date !== '' && !isValidDate(date)) {
-        	//console.log(visit.properties.cartodb_id, date);
-        }
-      });
+      var dates = visit.properties.date_convert.replace(/ /g,'').split(',');
+      // dates.forEach(date => {
+      // 	date = date.replace(/ /g,'');
+      //   if (date !== '' && !isValidDate(date)) {
+      //     console.log(visit.properties.cartodb_id, date);
+      //   }
+      // });
 
       visit.properties.start_date = dates[0];
       if (dates[1] && dates[1] !== '') {

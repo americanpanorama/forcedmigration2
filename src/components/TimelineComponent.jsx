@@ -52,26 +52,27 @@ export default class Timeline extends React.Component {
             className={ 'term-bg' }
           />
 
-          <text 
-            fontSize={ DimensionsStore.getTermsLabelSize() }
-            textAnchor='middle'
+          <ReactTransitionGroup
+            component='g'
+            className='terms' 
           >
-            <textPath 
-              xlinkHref={'#presSegment'} 
-              startOffset='50%'
-            >
-              PRESIDENTS
-            </textPath>
-          </text>
 
-          { DataStore.getPresidentialTerms().map((presidency, i) => {
-            let isSelected = (DataStore.getSelectedOffice() == 'president' && DataStore.getSelectedId() == presidency.number);
-            return (
-              <ReactTransitionGroup
-                key={ 'presidentialterm' + i }
-                component='g'
-                className='terms' 
-              >
+            <Term
+              theArc={ DimensionsStore.getPresArc() }
+              startAngle={ Math.PI * 2 - Math.PI * 0.075  }
+              endAngle={ Math.PI * 2 + Math.PI * 0.075 }
+              selected={ DataStore.allPresidentsShown() } 
+              id='president'
+              onOfficeholderSelected={ this.props.onOfficeholderSelected }
+              label='PRESIDENTS'
+              textHref={ '#presSegment' }
+              key={ 'presidentialtermlabel' }
+              className='officelabel'
+            />
+
+            { DataStore.getPresidentialTerms().map((presidency, i) => {
+              let isSelected = (DataStore.getSelectedOffice() == 'president' && DataStore.getSelectedId() == presidency.number);
+              return (
                 <Term
                   theArc={ DimensionsStore.getPresArc() }
                   startAngle={ presidency.startAngle  }
@@ -79,15 +80,14 @@ export default class Timeline extends React.Component {
                   selected={ isSelected } 
                   id={ 'president-' + presidency.number }
                   onOfficeholderSelected={ this.props.onOfficeholderSelected }
-                  //visited={ DataStore.getOfficeholdersWhoVisitedSelected().indexOf('president-' + presidency.number) !== -1 }
                   label={ (isSelected) ? presidency.name : presidency.last_name }
-                  radius={ DimensionsStore.getRadius() }
                   textHref={ '#presSegment' }
+                  key={ 'presidentialterm' + i }
                 />
-              </ReactTransitionGroup>
-            );
-          }) }
+              );
+            }) }
 
+          </ReactTransitionGroup>
 
         {/* secretaries of state */}
           <defs>
@@ -97,26 +97,27 @@ export default class Timeline extends React.Component {
             />
           </defs>
 
-          <text 
-            fontSize={ DimensionsStore.getTermsLabelSize() }
-            textAnchor='middle'
+          <ReactTransitionGroup
+            component='g' 
+            className='terms' 
           >
-            <textPath 
-              xlinkHref={'#sosSegment'} 
-              startOffset='50%'
-            >
-              SECRETARIES OF STATE
-            </textPath>
-          </text>
 
-          { DataStore.getSOSTerms().map((sos, i) => {
-            let isSelected = (DataStore.getSelectedOffice() == 'sos' && DataStore.getSelectedId() == sos.number);
-            return (
-              <ReactTransitionGroup
-                key={ 'sosterm' + i }
-                component='g' 
-                className='terms' 
-              >
+            <Term
+              theArc={ DimensionsStore.getSOSArc() }
+              startAngle={ Math.PI * 2 - Math.PI * 0.075  }
+              endAngle={ Math.PI * 2 + Math.PI * 0.075 }
+              selected={ DataStore.allSOSsShown() } 
+              id='sos'
+              onOfficeholderSelected={ this.props.onOfficeholderSelected }
+              label='SECRETARIES OF STATE'
+              textHref='#sosSegment'
+              key='sosltermlabel'
+              className='officelabel'
+            />
+
+            { DataStore.getSOSTerms().map((sos, i) => {
+              let isSelected = (DataStore.getSelectedOffice() == 'sos' && DataStore.getSelectedId() == sos.number);
+              return (
                 <Term
                   theArc={ DimensionsStore.getSOSArc() }
                   startAngle={ sos.startAngle  }
@@ -125,27 +126,28 @@ export default class Timeline extends React.Component {
                   id={ 'sos-' + sos.number }
                   onOfficeholderSelected={ this.props.onOfficeholderSelected }
                   label={ (isSelected) ? sos.name : sos.last_name }
-                  radius={ DimensionsStore.getRadius() }
-                  textHref={ '#sosSegment' }
+                  textHref='#sosSegment'
+                  key={ 'sostermlabel' + i }
                 />
-              </ReactTransitionGroup>
-            );
-          }) }
+              );
+            }) }
 
-          { DataStore.getYearsWithAngles().map((yearData) => {
-            return (
-              <ReactTransitionGroup
-                key={ 'year' + yearData.year }
-                component='g' 
-                className='years' 
-              >
-                <YearTick
-                  yearData={ yearData }
-                  label= { (yearData.year % 4 == 0) ? yearData.year : '' }
-                />
-              </ReactTransitionGroup>
-            );
-          }) }
+          </ReactTransitionGroup>
+
+          <ReactTransitionGroup
+            component='g' 
+            className='years' 
+          >
+            { DataStore.getYearsWithAngles().map((yearData) => {
+              return (
+                  <YearTick
+                    yearData={ yearData }
+                    label= { (yearData.year % 4 == 0) ? yearData.year : '' }
+                    key={ 'year' + yearData.year }
+                  />
+              );
+            }) }
+          </ReactTransitionGroup>
         </g>
       </svg>
     );

@@ -44,6 +44,7 @@ function browserifyTask (options) {
   var appBundler = browserify({
     entries: [options.src],     // Application entry point; browserify finds and bundles all dependencies from there
     transform: [babelify],      // Convert React .jsx -> vanilla .js and enable ES6
+    presets: ["es2015", "es2016", "react", "babel-polyfill", "latest"],
     debug: options.development,   // Gives us sourcemapping
     cache: {}, packageCache: {}, fullPaths: options.development // watchify requirements
   });

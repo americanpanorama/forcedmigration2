@@ -65,7 +65,7 @@ const DimensionsStore = {
 
   getGraphWidth: function() { return (this.data.widthHeight * this.data.graphProportion) / 2; },
 
-  getTermsLabelSize: function() { return this.getTermWidth() / 2; },
+  getTermsLabelSize: function() { return this.getTermWidth() / 1.8; },
 
   getSVGArc(padding, radius, sweepFlag) {
     sweepFlag = (sweepFlag) ? sweepFlag : 1; 
@@ -86,22 +86,27 @@ const DimensionsStore = {
 
   getAboutMapLinkSize: function() { return this.getTermWidth() * 0.75; },
 
-  getTimelineLabelSize: function() { return this.getTermWidth() / 3; },
+  getTimelineLabelSize: function() { return this.getTermWidth() / 2; },
 
-  getRegionLabelSize: function() { return this.getTermWidth() / 2.5; },
+  getRegionLabelSize: function() { return this.getTermWidth() / 2; },
+
+  getMaskRectHeight: function() { return window.innerHeight - (this.getWidthHeight() / 2 + this.getRadius()); },
 
   getPointRadius: function(num) { 
     num = (num) ? num : 1;
+    if (!DataStore.getSelectedId()) num = num / 10;
     let radius = Math.sqrt(num * this.data.pointPercentOfRadius * this.getRadius() * this.data.pointPercentOfRadius * this.getRadius());
     return radius; 
   },
 
+
+
   getDetailsControlStyle: function() {
     return {
-      top: window.innerHeight / 2 - this.getRadius() *  0.4,
+      top: this.getTimelineWidth() + this.getRadius() * 0.6,
       left: window.innerWidth / 2 - this.getRadius() *  0.6,
       width: this.getRadius() * 0.4,
-      height: this.getTermWidth() ,
+      height: this.getTermWidth(),
       fontSize: this.getTermWidth() / 2
     };
   },
@@ -109,10 +114,15 @@ const DimensionsStore = {
 
   getDetailsStyle: function() {
     return {
-      top: window.innerHeight / 2 - this.getRadius() *  0.4 + this.getTermWidth(),
+      top: this.getTimelineWidth() + this.getRadius() * 0.6 + this.getTermWidth(),
       left: window.innerWidth / 2 - this.getRadius() *  0.6,
-      width: this.getRadius() * 0.4,
-      height: window.innerHeight * 0.7,
+    };
+  },
+
+  getDetailsInnerStyle: function() {
+    return {
+      width: this.getRadius() * 0.4 + 20,
+      maxHeight: this.getRadius() * 1.4 - this.getTermWidth(),
       fontSize: this.getTermWidth() / 2,
       paddingBottom: this.getTermWidth() * 3
     };
@@ -145,7 +155,8 @@ const DimensionsStore = {
 
   getDetailsDestinationStyle: function() {
     return {
-      fontSize: this.getTermWidth() / 1.5
+      fontSize: this.getTermWidth() / 1.5,
+      width: this.getRadius() * 0.4
     };
   },
 
@@ -162,6 +173,23 @@ const DimensionsStore = {
       .startAngle(Math.PI * 2 * 0.075/2)
       .endAngle(Math.PI * 2 - Math.PI * 2 * 0.075/2)();
   },
+
+  getPresidentLabelBg: function() { 
+    return d3.svg.arc()
+      .innerRadius(this.getPresInnerRadius())
+      .outerRadius(this.getPresOuterRadius())
+      .startAngle(Math.PI * 2 - Math.PI * 0.075)
+      .endAngle(Math.PI * 2 + Math.PI * 0.075)();
+  },
+
+  getSOSLabelBg: function() { 
+    return d3.svg.arc()
+      .innerRadius(this.getSOSInnerRadius())
+      .outerRadius(this.getSOSOuterRadius())
+      .startAngle(Math.PI * 2 - Math.PI * 0.075)
+      .endAngle(Math.PI * 2 + Math.PI * 0.075)();
+  },
+
 
   getSOSArc: function () {
     return d3.svg.arc()

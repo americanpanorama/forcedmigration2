@@ -31,7 +31,8 @@ const DataStore = {
     inspectedLocationIds: [],
     detailText: null,
     maxDistance: 18607474, // DestinationsJson.features.reduce((a,b) => Math.max(a,b.properties.distance), 0);
-    maxVisits: 94
+    maxVisits: 94,
+    maxVisitsPresidents: 41
   },
 
   _dateDiff: function (date1, date2) {
@@ -104,7 +105,7 @@ const DataStore = {
     let yearCounts = [],
       max;
     travels
-      .filter(o => o.office == 's')
+      .filter(o => o.office == 'p')
       .forEach(o => {
         o.visits.forEach(v => {
           let year = parseInt(v.properties.start_date.substring(0,4));
@@ -117,8 +118,9 @@ const DataStore = {
 
 
 
-  _parseDestinationsByLocation: function(destinations) {
-    let theData = [];
+  _parseDestinationsByLocation: function() {
+    let destinations = (this.data.selectedId) ? this.getSimplifiedDestinationsForSelected() : this.getAllDestinations(),
+      theData = [];
 
     destinations.forEach(destination => {
       let lng = destination.geometry.coordinates[0],
@@ -170,6 +172,7 @@ const DataStore = {
   },
 
   setSelectedVisits: function(ids) {
+    ids = ids.map(id => parseInt(id));
     this.data.inspectedLocationIds = [];
     this.data.selectedLocationIds = ids;
     this.emit(AppActionTypes.storeChanged);
@@ -182,6 +185,10 @@ const DataStore = {
   },
 
   // GETS
+
+  allPresidentsShown: function() { return !this.data.selectedId && this.data.selectedOffice == 'president'; },
+
+  allSOSsShown: function() { return !this.data.selectedId && this.data.selectedOffice == 'sos'; },
 
   getSelectedId: function() { return this.data.selectedId; },
 
@@ -200,12 +207,14 @@ const DataStore = {
   hasVisibleLocation: function() { return this.getVisibleLocationIds().length > 0; },
 
   isSelectedLocation: function() { return this.getVisibleLocationIds() == this.getSelectedLocationIds(); },
+
+  isAVisibleLocation: function(id) { return DataStore.getVisibleLocationIds().indexOf(id) !== -1; },
   
   getOceanPolygons: function() { return OceansJson.features; },
 
   getDestinationsByYear: function() { return (this.data.selectedOffice == 'president') ? this.data.presidentialDestinationsByYear : this.data.sosDestinationsByYear; },
 
-  getDestinationDetails: function(ids) { return ids.map(id => this.getSelectedData().visits.filter(v => v.properties.cartodb_id == parseInt(id))[0]).sort((a,b) => (a.properties.start_date < b.properties.start_date) ? -1 : 1); },
+  getDestinationDetails: function(ids) { return (!ids) ? [] :ids.map(id => this.getSelectedData().visits.filter(v => v.properties.cartodb_id == parseInt(id))[0]).sort((a,b) => (a.properties.start_date < b.properties.start_date) ? -1 : 1); },
 
   getPresidentialTerms: function() { return this.getTermsForOffice('p'); },
 
@@ -240,13 +249,14 @@ const DataStore = {
 
   getTermsRingAngles: function() { return [this.data.tau * 0.075, this.data.tau - this.data.tau * 0.075]; },
 
-  dateBeforeSelected: function(date) { return date.substring(0,10) <= this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).took_office); },
+  dateBeforeSelected: function(date) { return (!this.data.selectedId) ? true : date.substring(0,10) <= this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).took_office); },
 
-  dateDuringSelected: function(date) { return date > this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).took_office) && date <= this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).left_office); },
+  dateDuringSelected: function(date) { return (!this.data.selectedId) ? false : date > this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).took_office) && date <= this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).left_office); },
 
-  dateAfterSelected: function(date) { return date > this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).left_office);  },
+  dateAfterSelected: function(date) { return (!this.data.selectedId) ? false : date > this._constrainedDate(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).left_office);  },
 
   yearsForSelected: function() {
+    if (!this.data.selectedId) return [];
     let years = [];
     for(let year = parseInt(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).took_office.substring(0,4)); year <= parseInt(this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice).left_office.substring(0,4)); year++) {
       years.push(year);
@@ -271,18 +281,27 @@ const DataStore = {
 
   isSelectedYear(year) { return this.yearsForSelected().indexOf(year) !== -1; },
 
-  getDuration: function(id, office) { return this._dateDiff(...this.getTerm(id, office)); },
+  getDuration: function(id, office) { return (!id) ? 0 : this._dateDiff(...this.getTerm(id, office)); },
 
   getTerm: function(id, office) { return [this._constrainedDate(this.getOfficeholderData(id,office).took_office), this._constrainedDate(this.getOfficeholderData(id,office).left_office)]; },
 
-  getDestinationsForSelected: function() { return this._parseDestinationsByLocation(this.getSimplifiedDestinationsForSelected()); },
+  getDestinationsForSelected: function() { return this._parseDestinationsByLocation(); },
 
   getSimplifiedDestinationsForSelected: function() { return this.getSimplifiedDestinationsForOfficeholder(this.data.selectedId, this.data.selectedOffice); },
 
+  getAllDestinations: function() { 
+    let visits=[];
+    travels
+      .filter(o => o.office == this.data.selectedOffice.substring(0,1))
+      .forEach(o => visits = visits.concat(o.visits));
+    return visits;
+  },
+
   getSimplifiedDestinationsForOfficeholder: function(id, office) {
-    return travels
-      .filter(officeholder => officeholder.number == id && officeholder.office == office.substring(0,1))[0]
-      .visits;
+    return (!id) ? [] :
+      travels
+        .filter(officeholder => officeholder.number == id && officeholder.office == office.substring(0,1))[0]
+        .visits;
   },
 
   getNextDestinationIdSelected: function() {
@@ -297,9 +316,7 @@ const DataStore = {
     return (destinations[previousId]) ? destinations[previousId].properties.cartodb_id : null;
   },
 
-  getRegionsVisited() { 
-    return this.getSimplifiedDestinationsForSelected().map(destination => destination.properties.new_region.replace(/ /g,'').toLowerCase()).filter((region, pos, self) => self.indexOf(region) == pos && region !== 'u.s'); 
-  },
+  getRegionsVisited() { return this.getSimplifiedDestinationsForSelected().map(destination => destination.properties.new_region.replace(/ /g,'').toLowerCase()).filter((region, pos, self) => self.indexOf(region) == pos && region !== 'u.s'); },
 
   getYearsWithAngles() {
     return this.data.years.map(year => {
@@ -325,19 +342,26 @@ const DataStore = {
 
   getMaxDistance() { return this.data.maxDistance; },
 
-  getMaxVisits: function() { return this.data.maxVisits; },
+  getMaxVisits: function() { return (this.data.selectedOffice == 'president') ? this.data.maxVisitsPresidents : this.data.maxVisits; },
 
   getOfficeholderData(id, office) { return travels.filter(officeholder => officeholder.number == id && officeholder.office == office.substring(0,1))[0]; },
 
-  getSelectedData() { return this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice); },
+  getSelectedData() { 
+    if (this.data.selectedId) {
+      return this.getOfficeholderData(this.data.selectedId, this.data.selectedOffice); 
+    }
+    else {
+      return { visits: this.getAllDestinations() };
+    }
+  },
 
-  getOfficeholderStartAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).took_office)); },
+  getOfficeholderStartAngle(id, office) { return (!id) ? 0 : this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).took_office)); },
 
-  getOfficeholderEndAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).left_office)); },
+  getOfficeholderEndAngle(id, office) { return (!id) ? 0 : this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).left_office)); },
 
-  getOfficeholderAdjustedStartAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).start_date)); },
+  getOfficeholderAdjustedStartAngle(id, office) { return (!id) ? 0 :this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).start_date)); },
 
-  getOfficeholderAdjustedEndAngle(id, office) { return this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).end_date)); },
+  getOfficeholderAdjustedEndAngle(id, office) { return (!id) ? 0 : this.getDateAngle(this._constrainedDate(this.getOfficeholderData(id, office).end_date)); },
 
   getRegionMetadata(slug) { return RegionsMetadata.filter(region => region.slug == slug)[0]; },
 
