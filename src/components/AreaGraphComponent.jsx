@@ -62,6 +62,7 @@ export default class AreaGraph extends React.Component {
       <path
         d={ this.state.d }
         className={ this.props.region }
+        fillOpacity={ (!DataStore.getSelectedId() && DataStore.hasVisibleLocation()) ? 0.33 : 1 }
         key={ 'area' + this.props.region }
       />
     );

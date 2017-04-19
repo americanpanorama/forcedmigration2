@@ -89,6 +89,13 @@ export default class Details extends React.Component {
               return (
                 <li key={ 'detail' + i }>
                   <span className='date'>{ date }</span>
+                  {/* show name if all officeholders selected */}
+                  { (!DataStore.getSelectedId()) ?
+                    <span className='officeholder'>
+                      <br />
+                      { ((DataStore.getSelectedOffice() == 'president') ? 'Pres.' : 'SOS') + ' ' + destination.properties.pres_sos }
+                    </span> : ''
+                  }
                   <br />
                   <span className='description'>{ destination.properties.remarks }</span>
                 </li>

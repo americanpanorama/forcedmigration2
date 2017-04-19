@@ -24,7 +24,7 @@ const DataStore = {
     zoomFactor: 10,
     daysDuration: 40837, // this._dateDiff('1905-01-01', '2016-12-31'),
     selectedOffice: 'president',
-    selectedId: 44,
+    selectedId: null,
     presidentialDestinationsByYear: PresYearData,
     sosDestinationsByYear: SOSYearData,
     selectedLocationIds: [],
@@ -293,12 +293,17 @@ const DataStore = {
     let visits=[];
     travels
       .filter(o => o.office == this.data.selectedOffice.substring(0,1))
-      .forEach(o => visits = visits.concat(o.visits));
+      .forEach(o => {
+        visits = visits.concat(o.visits.map(v => {
+          v.properties.pres_sos = o.name;
+          return v;
+        }));
+      });
     return visits;
   },
 
   getSimplifiedDestinationsForOfficeholder: function(id, office) {
-    return (!id) ? [] :
+    return (!id) ? this.getAllDestinations() :
       travels
         .filter(officeholder => officeholder.number == id && officeholder.office == office.substring(0,1))[0]
         .visits;
@@ -327,6 +332,15 @@ const DataStore = {
       };
     });
   },
+
+  // getVisitsWithAngles() {
+  //   return this.getDestinationDetails(this.getVisibleLocationIds()).map(d=> {
+  //     return {        startDate: d.properties.start_date,
+  //       angle: d.properties.start_date),
+  //       endAngle: this.getDateAngle(d.properties.start_date)
+  //     }
+  //   });
+  // },
 
   getMonthsSelectedWithAngles() {
     return this.monthsForSelected().map(month => {

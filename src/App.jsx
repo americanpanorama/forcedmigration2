@@ -41,7 +41,7 @@ class App extends React.Component {
     
 
     let office = (Object.keys(HashManager.getState()).indexOf('sos') !== -1) ? 'sos' : 'president',
-      id = (HashManager.getState()[office]) ? (HashManager.getState()[office]) : 44,
+      id = (HashManager.getState()[office]) ? (HashManager.getState()[office]) : null,
       visits = (HashManager.getState().visits) ? HashManager.getState().visits.split('-') : [];
     AppActions.parseData(id, office, visits); 
   }
