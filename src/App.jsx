@@ -15,6 +15,7 @@ import Steamgraph from './components/SteamgraphComponent.jsx';
 import Title from './components/TitleComponent.jsx';
 import About from './components/AboutComponent.jsx';
 import AboutLink from './components/AboutLinkComponent.jsx';
+import DorlingLegend from './components/DorlingLegendComponent.jsx';
 import IntroModal from './components/IntroModalComponent.jsx';
 
 import DataStore from './stores/DataStore';
@@ -118,6 +119,7 @@ class App extends React.Component {
   }
 
   render () {
+    console.log(DataStore.getSelectedId());
     return (
       <div>
 
@@ -143,6 +145,8 @@ class App extends React.Component {
         <Title />
 
         <AboutLink onClick={ this.onViewAbout } />
+
+        <DorlingLegend />
 
         { !this.state.showIntroModal ? <IntroModal onDismiss={ this.onDismissIntroModal } /> : '' }
 

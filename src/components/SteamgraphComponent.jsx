@@ -207,6 +207,7 @@ export default class SteamGraph extends React.Component {
 
           }
 
+
         </g>
       </svg>
     );

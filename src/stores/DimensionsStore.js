@@ -84,6 +84,10 @@ const DimensionsStore = {
 
   getAboutMapLinkArc: function() { return this.getSVGArc(-1 * (this.getTermWidth() * 2 + this.getGraphWidth() + this.data.titleOffset * this.data.widthHeight / 2), this.getRadius(), '0'); },
 
+  getDorlingLegendValuesArc: function() { return this.getSVGArc(-1 * (this.getTermWidth() * 2 + this.getGraphWidth() + this.data.titleOffset * this.data.widthHeight / 2 + this.getPointRadius((DataStore.getSelectedId()) ? 10 : 100) * 3), this.getRadius(), '0'); },
+
+  getDorlingLegendArc: function() { return this.getSVGArc(-1 * (this.getTermWidth() * 2 + this.getGraphWidth() + this.data.titleOffset * this.data.widthHeight / 2 + this.getPointRadius((DataStore.getSelectedId()) ? 10 : 100) * 5), this.getRadius(), '0'); },
+
   getAboutMapLinkSize: function() { return this.getTermWidth() * 0.75; },
 
   getTimelineLabelSize: function() { return this.getTermWidth() / 2; },
@@ -224,6 +228,30 @@ const DimensionsStore = {
       .domain([0, DataStore.getMaxDistance()])
       .range([this.getGraphInnerRadius(), this.getGraphOuterRadius()]);
     return distanceScale(distance);
+  },
+
+  getDorlingLegend() {
+    let ticks = (DataStore.getSelectedId()) ? [1,4,7,10] : [1,10,40,70,100],
+      h = this.getTermWidth() * 2 + this.getGraphWidth() + this.data.titleOffset * this.data.widthHeight / 2 + this.getRadius(),
+      midAngle = Math.PI * 0.25,
+      separationAngle = Math.asin(this.getPointRadius((DataStore.getSelectedId()) ? 1 : 10) / h) * 4,
+      totalAngle = separationAngle * 3 + ticks.reduce((a,v) => a + Math.asin(this.getPointRadius(v) / h) * 2, 0),
+      farAngle = midAngle + totalAngle/2,
+      offset = 0,
+      data = [];
+    ticks.forEach((v,i) => {
+      let dorlingAngle = Math.asin(this.getPointRadius(v) / h) * 2;
+      data.push({
+        value: v,
+        cx: h * Math.cos(farAngle - dorlingAngle/2 - separationAngle*i - offset), 
+        cy: h * Math.sin(farAngle - dorlingAngle/2 - separationAngle*i - offset), 
+        r: this.getPointRadius(v),
+        class: (v == ticks[0]) ? 'latinamerica' : (v == ticks[1]) ? 'eastasia' : (v==ticks[2]) ? 'africa' : (v==ticks[3]) ? 'middleeast' : 'westerneurope',
+        offset: Math.round(1000 * (0.75 - (farAngle - dorlingAngle/2 - separationAngle*i - offset - midAngle) / Math.PI)) / 10 + '%'
+      });
+      offset += dorlingAngle;
+    });
+    return data;
   },
 
 };
