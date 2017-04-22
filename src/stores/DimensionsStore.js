@@ -53,6 +53,10 @@ const DimensionsStore = {
 
   getTimelineDestinationY: function(angle, distance) { return this.getRadius() - this.getDestinationDistance(distance) * Math.cos(angle); },
 
+  getSteamgraphLabelX: function(angle, visits) { return this.getRadius() + this.getSteamgraphYAxisDistance(visits) * Math.sin(angle); },
+
+  getSteamgraphLabelY: function(angle, visits) { return this.getRadius() - this.getSteamgraphYAxisDistance(visits) * Math.cos(angle); },
+
   getTimelineTickOuterRadius: function() { return this.getRadius() + this.getTermWidth() * 2 + this.getGraphWidth(); },
 
   getTimelineLabelRadius: function() { return this.getRadius() + this.getTermWidth() * 2.5 + this.getGraphWidth(); },
@@ -228,6 +232,13 @@ const DimensionsStore = {
       .domain([0, DataStore.getMaxDistance()])
       .range([this.getGraphInnerRadius(), this.getGraphOuterRadius()]);
     return distanceScale(distance);
+  },
+
+  getSteamgraphYAxisDistance(visits) {
+    let distanceScale = d3.scale.linear()
+      .domain([0, DataStore.getMaxVisits()])
+      .range([this.getGraphInnerRadius(), this.getGraphOuterRadius()]);
+    return distanceScale(visits);
   },
 
   getDorlingLegend() {

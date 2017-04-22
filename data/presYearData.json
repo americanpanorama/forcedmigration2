@@ -561,6 +561,11 @@
         "region": "Canada",
         "year": 2016,
         "visits": 1
+      },
+      {
+        "region": "Canada",
+        "year": 2017,
+        "visits": 0
       }
     ]
   },
@@ -1126,6 +1131,11 @@
         "region": "Latin America",
         "year": 2016,
         "visits": 3
+      },
+      {
+        "region": "Latin America",
+        "year": 2017,
+        "visits": 0
       }
     ]
   },
@@ -1690,7 +1700,12 @@
       {
         "region": "Western Europe",
         "year": 2016,
-        "visits": 4
+        "visits": 5
+      },
+      {
+        "region": "Western Europe",
+        "year": 2017,
+        "visits": 0
       }
     ]
   },
@@ -2256,6 +2271,11 @@
         "region": "Eastern Europe and Central Asia",
         "year": 2016,
         "visits": 1
+      },
+      {
+        "region": "Eastern Europe and Central Asia",
+        "year": 2017,
+        "visits": 0
       }
     ]
   },
@@ -2821,6 +2841,11 @@
         "region": "Middle East",
         "year": 2016,
         "visits": 2
+      },
+      {
+        "region": "Middle East",
+        "year": 2017,
+        "visits": 0
       }
     ]
   },
@@ -3385,6 +3410,11 @@
       {
         "region": "Africa",
         "year": 2016,
+        "visits": 0
+      },
+      {
+        "region": "Africa",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -3951,6 +3981,11 @@
         "region": "South Asia",
         "year": 2016,
         "visits": 0
+      },
+      {
+        "region": "South Asia",
+        "year": 2017,
+        "visits": 0
       }
     ]
   },
@@ -4515,7 +4550,12 @@
       {
         "region": "East Asia",
         "year": 2016,
-        "visits": 3
+        "visits": 6
+      },
+      {
+        "region": "East Asia",
+        "year": 2017,
+        "visits": 0
       }
     ]
   },
@@ -5080,6 +5120,11 @@
       {
         "region": "Oceania",
         "year": 2016,
+        "visits": 0
+      },
+      {
+        "region": "Oceania",
+        "year": 2017,
         "visits": 0
       }
     ]

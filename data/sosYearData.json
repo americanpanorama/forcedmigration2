@@ -275,7 +275,7 @@
       {
         "region": "Canada",
         "year": 1959,
-        "visits": 2
+        "visits": 1
       },
       {
         "region": "Canada",
@@ -560,6 +560,11 @@
       {
         "region": "Canada",
         "year": 2016,
+        "visits": 1
+      },
+      {
+        "region": "Canada",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -840,12 +845,12 @@
       {
         "region": "Latin America",
         "year": 1959,
-        "visits": 2
+        "visits": 1
       },
       {
         "region": "Latin America",
         "year": 1960,
-        "visits": 16
+        "visits": 7
       },
       {
         "region": "Latin America",
@@ -1125,6 +1130,11 @@
       {
         "region": "Latin America",
         "year": 2016,
+        "visits": 3
+      },
+      {
+        "region": "Latin America",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -1360,7 +1370,7 @@
       {
         "region": "Western Europe",
         "year": 1950,
-        "visits": 4
+        "visits": 3
       },
       {
         "region": "Western Europe",
@@ -1405,12 +1415,12 @@
       {
         "region": "Western Europe",
         "year": 1959,
-        "visits": 21
+        "visits": 12
       },
       {
         "region": "Western Europe",
         "year": 1960,
-        "visits": 9
+        "visits": 5
       },
       {
         "region": "Western Europe",
@@ -1690,6 +1700,11 @@
       {
         "region": "Western Europe",
         "year": 2016,
+        "visits": 38
+      },
+      {
+        "region": "Western Europe",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -2255,6 +2270,11 @@
       {
         "region": "Eastern Europe and Central Asia",
         "year": 2016,
+        "visits": 5
+      },
+      {
+        "region": "Eastern Europe and Central Asia",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -2540,7 +2560,7 @@
       {
         "region": "Middle East",
         "year": 1960,
-        "visits": 2
+        "visits": 1
       },
       {
         "region": "Middle East",
@@ -2820,6 +2840,11 @@
       {
         "region": "Middle East",
         "year": 2016,
+        "visits": 13
+      },
+      {
+        "region": "Middle East",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -3385,6 +3410,11 @@
       {
         "region": "Africa",
         "year": 2016,
+        "visits": 3
+      },
+      {
+        "region": "Africa",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -3950,6 +3980,11 @@
       {
         "region": "South Asia",
         "year": 2016,
+        "visits": 3
+      },
+      {
+        "region": "South Asia",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -4515,6 +4550,11 @@
       {
         "region": "East Asia",
         "year": 2016,
+        "visits": 12
+      },
+      {
+        "region": "East Asia",
+        "year": 2017,
         "visits": 0
       }
     ]
@@ -5080,6 +5120,11 @@
       {
         "region": "Oceania",
         "year": 2016,
+        "visits": 1
+      },
+      {
+        "region": "Oceania",
+        "year": 2017,
         "visits": 0
       }
     ]

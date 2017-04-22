@@ -119,7 +119,6 @@ class App extends React.Component {
   }
 
   render () {
-    console.log(DataStore.getSelectedId());
     return (
       <div>
 

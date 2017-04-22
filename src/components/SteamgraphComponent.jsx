@@ -207,6 +207,34 @@ export default class SteamGraph extends React.Component {
 
           }
 
+          <text
+            x={ DimensionsStore.getSteamgraphLabelX(Math.PI * 2 - Math.PI * 0.065, DataStore.getMaxVisits()/2) }
+            y={ DimensionsStore.getSteamgraphLabelY(Math.PI * 2 - Math.PI * 0.065, DataStore.getMaxVisits()/2) }
+            textAnchor='middle'
+            className='axisLabel'
+            fontSize={ DimensionsStore.getTimelineLabelSize() }
+            transform={ 'rotate(' + (360 - (0.065 * 180- 90)) + ', ' + DimensionsStore.getSteamgraphLabelX(Math.PI * 2 - Math.PI * 0.065, DataStore.getMaxVisits()/2) + ',' + DimensionsStore.getSteamgraphLabelY(Math.PI * 2 - Math.PI * 0.065, DataStore.getMaxVisits()/2)  + ')'  }
+          >
+            places visited
+          </text>
+
+          { DataStore.getVisitsTicks().map(v => {
+            return (
+              <text
+                x={ DimensionsStore.getSteamgraphLabelX(Math.PI *2 - Math.PI * 0.08, v) }
+                y={ DimensionsStore.getSteamgraphLabelY(Math.PI *2 - Math.PI * 0.08, v) }
+                textAnchor='start'
+                alignmentBaseline='middle'
+                fontSize={ DimensionsStore.getTimelineLabelSize() }
+                className='axisLabel'
+                key={ 'tickVisitsLabel' + v }
+                transform={ 'rotate(' + (360 - 0.08 * 180) + ' ' + DimensionsStore.getSteamgraphLabelX(Math.PI *2 - Math.PI * 0.08, v) + ' ' + DimensionsStore.getSteamgraphLabelY(Math.PI *2 - Math.PI * 0.08, v) + ')'  }
+              >
+                { v }
+              </text>
+            );
+          }) }
+
 
         </g>
       </svg>

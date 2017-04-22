@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import AppDispatcher from '../utils/AppDispatcher';
 import { AppActionTypes } from '../utils/AppActionCreator';
 import OceansJson from '../../data/oceans.json';
-//import DestinationsJson from '../../data/destinations.json';
+import DestinationsJson from '../../data/destinations.json';
 //import PresidentialTerms from '../../data/terms.json';
 import travels from '../../data/presTerms.json';
 //import SOSTerms from '../../data/termsSOS.json';
@@ -16,9 +16,9 @@ const DataStore = {
 
   data: {
     firstYear: 1905,
-    lastYear: 2016,
+    lastYear: 2017,
     startDate: '1905-04-03',
-    endDate: '2017-01-20',
+    endDate: '2016-12-31',
     years: [...Array(112).keys()].map(num => num+1905),
     tau: 2 * Math.PI,
     zoomFactor: 10,
@@ -382,6 +382,8 @@ const DataStore = {
   getTimelineRotation: function() { return 360 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2 / Math.PI * 180; }, 
 
   getTimelineRotationRadians: function() { return Math.PI * 2 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2; }, 
+
+  getVisitsTicks: function() { return (this.data.selectedOffice == 'president') ? [10,20,30,41] : [30,60,91]; }
 
 /* 
   OLDgetPresidentialTerms: function() {

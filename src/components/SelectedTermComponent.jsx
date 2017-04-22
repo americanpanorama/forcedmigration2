@@ -22,8 +22,8 @@ export default class SelectedTerm extends React.Component {
     super(props);
     this.state = {
       d: this.props.graphArc.startAngle(this.props.startAngle).endAngle(this.props.endAngle)(),
-      rotate: (this.props.endAngle + 0.01) / Math.PI * 180,
-      rotateLabel: (this.props.endAngle + 0.10) / Math.PI * 180 - 90,
+      rotate: (this.props.startAngle - 0.01) / Math.PI * 180,
+      rotateLabel: (this.props.startAngle - 0.105) / Math.PI * 180 + 90,
     };
   }
 
@@ -40,8 +40,8 @@ export default class SelectedTerm extends React.Component {
       .each('end', () => {
         this.setState({
           d: this.props.graphArc.startAngle(this.props.startAngle).endAngle(this.props.endAngle)(),
-          rotate: (this.props.endAngle + 0.01) / Math.PI * 180,
-          rotateLabel: (this.props.endAngle + 0.105) / Math.PI * 180 - 90,
+          rotate: (this.props.startAngle + 0.01) / Math.PI * 180,
+          rotateLabel: (this.props.startAngle - 0.105) / Math.PI * 180 + 90,
         });
         callback();
       });
@@ -55,8 +55,8 @@ export default class SelectedTerm extends React.Component {
     if (this.state.d !== nextProps.graphArc.startAngle(nextProps.startAngle).endAngle(nextProps.endAngle)()) {
       this.setState({
         d: nextProps.graphArc.startAngle(nextProps.startAngle).endAngle(nextProps.endAngle)(),
-        rotate: (this.props.endAngle + 0.01) / Math.PI * 180,
-        rotateLabel: (this.props.endAngle + 0.105) / Math.PI * 180 - 90,
+        rotate: (this.props.startAngle + 0.01) / Math.PI * 180,
+        rotateLabel: (this.props.startAngle - 0.105) / Math.PI * 180 + 90,
       });
     }
   }
@@ -74,18 +74,18 @@ export default class SelectedTerm extends React.Component {
         {/* axis label */}
 
         <path
-          d={ this.props.graphArc.startAngle(this.props.endAngle).endAngle(this.props.endAngle + 0.105)() }
+          d={ this.props.graphArc.startAngle(this.props.startAngle - 0.105).endAngle(this.props.startAngle)() }
           transform={ 'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
           className='axisLabelMask'
         />
 
         <text
-          x={ DimensionsStore.getTimelineDestinationX(this.props.endAngle + 0.10, 6000 * 1609.344) }
-          y={ DimensionsStore.getTimelineDestinationY(this.props.endAngle + 0.10, 6000 * 1609.344) }
+          x={ DimensionsStore.getTimelineDestinationX(this.props.startAngle - 0.10, 6000 * 1609.344) }
+          y={ DimensionsStore.getTimelineDestinationY(this.props.startAngle - 0.10, 6000 * 1609.344) }
           textAnchor='middle'
           className='axisLabel'
           fontSize={ DimensionsStore.getTimelineLabelSize() }
-          transform={ 'rotate(' + this.state.rotateLabel + ' ' + DimensionsStore.getTimelineDestinationX(this.props.endAngle + 0.10, 6000 * 1609.344) + ' ' + DimensionsStore.getTimelineDestinationY(this.props.endAngle + 0.10, 6000 * 1609.344) + ')'  }
+          transform={ 'rotate(' + this.state.rotateLabel + ' ' + DimensionsStore.getTimelineDestinationX(this.props.startAngle - 0.10, 6000 * 1609.344) + ' ' + DimensionsStore.getTimelineDestinationY(this.props.startAngle - 0.10, 6000 * 1609.344) + ')'  }
         >
           miles from DC
         </text>
@@ -93,14 +93,14 @@ export default class SelectedTerm extends React.Component {
         { [10, 7.5, 5, 2.5].map(milesAway => {
           return (
             <text
-              x={ DimensionsStore.getTimelineDestinationX(this.props.endAngle + 0.01, milesAway * 1000 * 1609.344) }
-              y={ DimensionsStore.getTimelineDestinationY(this.props.endAngle + 0.01, milesAway * 1000 * 1609.344) }
-              textAnchor='start'
+              x={ DimensionsStore.getTimelineDestinationX(this.props.startAngle - 0.01, milesAway * 1000 * 1609.344) }
+              y={ DimensionsStore.getTimelineDestinationY(this.props.startAngle - 0.01, milesAway * 1000 * 1609.344) }
+              textAnchor='end'
               alignmentBaseline='middle'
               fontSize={ DimensionsStore.getTimelineLabelSize() }
               className='axisLabel'
               key={ 'tickDistanceLabel' + milesAway }
-              transform={ 'rotate(' + this.state.rotate + ' ' + DimensionsStore.getTimelineDestinationX(this.props.endAngle + 0.01, milesAway * 1000 * 1609.344) + ' ' + DimensionsStore.getTimelineDestinationY(this.props.endAngle + 0.01, milesAway * 1000 * 1609.344) + ')'  }
+              transform={ 'rotate(' + this.state.rotate + ' ' + DimensionsStore.getTimelineDestinationX(this.props.startAngle - 0.01, milesAway * 1000 * 1609.344) + ' ' + DimensionsStore.getTimelineDestinationY(this.props.startAngle - 0.01, milesAway * 1000 * 1609.344) + ')'  }
             >
               { milesAway + 'K' }
             </text>
