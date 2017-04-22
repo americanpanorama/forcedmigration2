@@ -15,17 +15,19 @@
       pointer-events: auto;
       cursor: default;
 
-      &.selected {
-        fill: $selected-term-color;
+      &.visited {
+        fill: lighten($term-color, 10%);
       }
 
-      &.visited {
-
+      &.selected {
+        fill: $selected-term-color;
       }
     }
 
     text {
       text-anchor: middle;
+
+
 
       &.selected {
         fill: black;

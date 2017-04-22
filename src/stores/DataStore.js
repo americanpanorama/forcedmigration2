@@ -214,7 +214,7 @@ const DataStore = {
 
   getDestinationsByYear: function() { return (this.data.selectedOffice == 'president') ? this.data.presidentialDestinationsByYear : this.data.sosDestinationsByYear; },
 
-  getDestinationDetails: function(ids) { return (!ids) ? [] :ids.map(id => this.getSelectedData().visits.filter(v => v.properties.cartodb_id == parseInt(id))[0]).sort((a,b) => (a.properties.start_date < b.properties.start_date) ? -1 : 1); },
+  getDestinationDetails: function(ids) { return (!ids) ? [] : ids.map(id => this.getSelectedData().visits.filter(v => v.properties.cartodb_id == parseInt(id))[0]).sort((a,b) => (a.properties.start_date < b.properties.start_date) ? -1 : 1); },
 
   getPresidentialTerms: function() { return this.getTermsForOffice('p'); },
 
@@ -383,7 +383,17 @@ const DataStore = {
 
   getTimelineRotationRadians: function() { return Math.PI * 2 - (this.getOfficeholderEndAngle(this.getSelectedId(), this.getSelectedOffice()) + this.getOfficeholderStartAngle(this.getSelectedId(), this.getSelectedOffice())) / 2; }, 
 
-  getVisitsTicks: function() { return (this.data.selectedOffice == 'president') ? [10,20,30,41] : [30,60,91]; }
+  getVisitsTicks: function() { return (this.data.selectedOffice == 'president') ? [10,20,30,41] : [30,60,91]; },
+
+  visitedLocation: function(id, office) {
+    let destinationIds = [];
+    if (this.hasVisibleLocation()) {
+      var [lat, lng] = this.getDestinationDetails([this.getVisibleLocationIds()[0]])[0].geometry.coordinates;
+      destinationIds = this.getSimplifiedDestinationsForOfficeholder(id, office)
+        .filter(v => v.geometry.coordinates[0] == lat && v.geometry.coordinates[1] == lng);
+    }
+    return destinationIds.length > 0;
+  }
 
 /* 
   OLDgetPresidentialTerms: function() {

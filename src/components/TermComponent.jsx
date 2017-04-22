@@ -74,12 +74,12 @@ export default class Term extends React.Component {
           transform={ 'translate(' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
           id={ this.props.id }
           onClick={ this.props.onOfficeholderSelected }
-          className={ this.props.className + ' ' + ((this.props.selected) ? 'selected' : '') + ((this.props.visited) ? ' visited' : '') }
+          className={ this.props.className + ' ' + ((this.props.selected) ? 'selected' : '') + ((this.props.visitedVisible) ? ' visited' : '') }
         />
 
         <text 
           transform={ 'rotate(' + this.state.rotate + ',' + DimensionsStore.getRadius() + ',' + DimensionsStore.getRadius() + ')' }
-          className={ (this.props.selected) ? 'selected' : '' }
+          className={ ((this.props.selected) ? 'selected' : '') + ((this.props.visitedVisible) ? ' visited' : '') }
 
         >
           <textPath 

@@ -78,6 +78,7 @@ export default class Timeline extends React.Component {
                   startAngle={ presidency.startAngle  }
                   endAngle={ presidency.endAngle }
                   selected={ isSelected } 
+                  visitedVisible={ DataStore.visitedLocation(presidency.number, 'president') }
                   id={ 'president-' + presidency.number }
                   onOfficeholderSelected={ this.props.onOfficeholderSelected }
                   label={ (isSelected) ? presidency.name : presidency.last_name }
@@ -123,6 +124,7 @@ export default class Timeline extends React.Component {
                   startAngle={ sos.startAngle  }
                   endAngle={ sos.endAngle }
                   selected={ isSelected }
+                  visitedVisible={ DataStore.visitedLocation(sos.number, 'sos') }
                   id={ 'sos-' + sos.number }
                   onOfficeholderSelected={ this.props.onOfficeholderSelected }
                   label={ (isSelected) ? sos.name : sos.last_name }
