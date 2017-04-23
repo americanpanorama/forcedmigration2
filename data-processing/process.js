@@ -62,6 +62,8 @@ var cleanupDestinations = function(id, office) {
       delete visit.properties.pres_sos;
       visit.properties.distance = Math.round(visit.properties.distance);
 
+      visit.geometry.coordinates = visit.geometry.coordinates.map(c => Math.round(c * 100)/100);
+
       var dates = visit.properties.date_convert.replace(/ /g,'').split(',');
       // dates.forEach(date => {
       // 	date = date.replace(/ /g,'');

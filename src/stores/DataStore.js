@@ -134,6 +134,8 @@ const DataStore = {
           lng: lng,
           cityId: cityId,
           regionClass: destination.properties.new_region.replace(/ /g,'').toLowerCase(),
+          displayName: destination.properties.city + ', ' + destination.properties.country,
+          searchName: [destination.properties.city, destination.properties.country, destination.properties.new_region].join(' '),
           visits: [
             destination.properties
           ]
@@ -152,9 +154,9 @@ const DataStore = {
     return date;
   },
 
-  setSelected: function(id, office) {
+  setSelected: function(id, office, visits, lat, lng) {
     if (this.hasSelectedLocation()) {
-      var [lat, lng] = this.getDestinationDetails([this.data.selectedLocationIds[0]])[0].geometry.coordinates;
+      [lng, lat] = this.getLatLng([this.data.selectedLocationIds[0]]);
     }
 
     this.data.selectedId = id;
@@ -162,10 +164,14 @@ const DataStore = {
 
     // if there are selected visits, see if the new selection visited the same place
     if (this.hasSelectedLocation()) {
-      let destinationIds = this.getSimplifiedDestinationsForSelected()
-        .filter(v => v.geometry.coordinates[0] == lat && v.geometry.coordinates[1] == lng)
-        .map(v => v.properties.cartodb_id);
-      this.setSelectedVisits(destinationIds);
+      this.setSelectedVisitsFromLatLng(lat, lng);
+    }
+
+    // set selected visits if specified
+    if (lat && lng) {
+      this.setSelectedVisitsFromLatLng(lat, lng);
+    } else if (visits) {
+      this.setSelectedVisits(visits);
     }
 
     this.emit(AppActionTypes.storeChanged);
@@ -182,6 +188,13 @@ const DataStore = {
     ids = ids.map(id => parseInt(id));
     this.data.inspectedLocationIds = ids;
     this.emit(AppActionTypes.storeChanged);
+  },
+
+  setSelectedVisitsFromLatLng: function(lat, lng) {
+    let destinationIds = this.getSimplifiedDestinationsForSelected()
+      .filter(v => v.geometry.coordinates[0] == lng && v.geometry.coordinates[1] == lat)
+      .map(v => v.properties.cartodb_id);
+    this.setSelectedVisits(destinationIds);
   },
 
   // GETS
@@ -393,7 +406,9 @@ const DataStore = {
         .filter(v => v.geometry.coordinates[0] == lat && v.geometry.coordinates[1] == lng);
     }
     return destinationIds.length > 0;
-  }
+  },
+
+  getLatLng: function(id) { return this.getDestinationDetails([id])[0].geometry.coordinates; },
 
 /* 
   OLDgetPresidentialTerms: function() {
@@ -471,8 +486,7 @@ Object.assign(DataStore, EventEmitter.prototype);
 DataStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
   case AppActionTypes.parseData:
-    DataStore.setSelected(action.id, action.office);
-    DataStore.setSelectedVisits(action.visits);
+    DataStore.setSelected(action.id, action.office, action.visits, action.lat, action.lng);
     break;
   case AppActionTypes.officeholderSelected:
     DataStore.setSelected(action.id, action.office);

@@ -107,6 +107,23 @@ const DimensionsStore = {
     return radius; 
   },
 
+  getSearchStyle: function() {
+    return {
+      top: this.getTimelineWidth() + this.getRadius() * 0.6,
+      left: window.innerWidth / 2 - this.getRadius() *  0.6,
+      width: this.getRadius() * 0.4,
+      maxHeight: this.getRadius() * 1.4 - this.getTermWidth(),
+      fontSize: this.getTermWidth() / 2,
+      paddingBottom: this.getTermWidth() * 3
+    };
+  },
+
+  getSearchInnerStyle: function() {
+    return {
+      width: this.getRadius() * 0.4 - 200,
+    };
+  },
+
 
 
   getDetailsControlStyle: function() {

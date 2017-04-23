@@ -17,6 +17,7 @@ import About from './components/AboutComponent.jsx';
 import AboutLink from './components/AboutLinkComponent.jsx';
 import DorlingLegend from './components/DorlingLegendComponent.jsx';
 import IntroModal from './components/IntroModalComponent.jsx';
+import Search from './components/SearchComponent.jsx';
 
 import DataStore from './stores/DataStore';
 import DimensionsStore from './stores/DimensionsStore';
@@ -34,17 +35,16 @@ class App extends React.Component {
     };
 
     // bind handlers
-    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover', 'onMapPointClick', 'onMapPointOut', 'onViewAbout', 'onDismissIntroModal'];
+    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover', 'onMapPointClick', 'onMapPointOut', 'onViewAbout', 'onDismissIntroModal', 'onSearchSelected'];
     handlers.map(handler => { this[handler] = this[handler].bind(this); });
   }
 
   componentWillMount () { 
-    
-
-    let office = (Object.keys(HashManager.getState()).indexOf('sos') !== -1) ? 'sos' : 'president',
-      id = (HashManager.getState()[office]) ? (HashManager.getState()[office]) : null,
-      visits = (HashManager.getState().visits) ? HashManager.getState().visits.split('-') : [];
-    AppActions.parseData(id, office, visits); 
+    const theHash = HashManager.getState(),
+      office = (Object.keys(theHash).indexOf('sos') !== -1) ? 'sos' : 'president',
+      id = (theHash[office]) ? (HashManager.getState()[office]) : null,
+      visits = (theHash.visit) ? [theHash.visit] : [];
+    AppActions.parseData(id, office, visits, parseFloat(theHash.lat), parseFloat(theHash.lng)); 
   }
 
   componentDidMount () {
@@ -95,6 +95,8 @@ class App extends React.Component {
     AppActions.visitsSelected(ids); 
   }
 
+  onSearchSelected(ids) { AppActions.visitsSelected(ids); }
+
   onViewAbout() { this.setState({ about: !this.state.about }); }
 
   onDismissIntroModal (persist) {
@@ -112,9 +114,23 @@ class App extends React.Component {
   changeHash () {
     let hash = {},
       office = DataStore.getSelectedOffice();
-    hash['president'] = (office == 'president') ? DataStore.getSelectedId() : null;
-    hash['sos'] = (office == 'sos') ? DataStore.getSelectedId() : null;
-    hash['visits'] = (DataStore.hasSelectedLocation()) ? DataStore.getSelectedLocationIds().join('-') : null;
+    hash.president = (office == 'president') ? DataStore.getSelectedId() : null;
+    hash.sos = (office == 'sos') ? DataStore.getSelectedId() : null;
+    if (DataStore.hasSelectedLocation()) {
+      if (DataStore.getSelectedLocationIds().length == 1) {
+        hash.lat = null;
+        hash.lng = null;
+        hash.visit = DataStore.getSelectedLocationIds();
+      } else {
+        hash.lat = DataStore.getLatLng(DataStore.getSelectedLocationIds()[0])[1];
+        hash.lng = DataStore.getLatLng(DataStore.getSelectedLocationIds()[0])[0];
+        hash.visit = null;
+      }
+    } else {
+      hash.lat = null;
+      hash.lng = null;
+      hash.visit = null;
+    }
     HashManager.updateHash(hash);
   }
 
@@ -128,7 +144,10 @@ class App extends React.Component {
           onMouseLeave={ this.onMapPointOut }
         />
        
-        { (DataStore.hasVisibleLocation()) ? <Details onSelectDestination={ this.onMapPointClick } /> : '' }
+        { (DataStore.hasVisibleLocation()) ? 
+          <Details onSelectDestination={ this.onMapPointClick } /> :  
+          <Search onSelected={ this.onSearchSelected } />
+        }
 
         { (this.state.about) ? <About onClick={ this.onViewAbout }/> : '' } 
 

@@ -13,12 +13,14 @@ export const AppActionTypes = {
 
 export const AppActions = {
 
-  parseData: (id, office, visits) => {
+  parseData: (id, office, visits, lat, lng) => {
     AppDispatcher.dispatch({
       type: AppActionTypes.parseData,
       id: id,
       office: office,
-      visits: visits
+      visits: visits,
+      lat: lat,
+      lng: lng
     });
   },
 
