@@ -1,5 +1,6 @@
 .officelabel {
   pointer-events: auto;
+  cursor: pointer;
   fill: transparent;
   
   .selected {
@@ -13,7 +14,7 @@
       stroke: #666699;
       stroke-width: 0.5;
       pointer-events: auto;
-      cursor: default;
+      cursor: pointer;
 
       &.visited {
         fill: lighten($term-color, 10%);

@@ -78,6 +78,7 @@ fill: $ocean-color;
 
 .destination {
   pointer-events: auto;
+  cursor: pointer;
 
   &.unselected {
     fill-opacity: 0.4;
