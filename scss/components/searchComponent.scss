@@ -8,10 +8,11 @@
 		color: white;
 		width: 95%;
 		padding: 0 5px;
+		margin: 0;
 		border: 1px lighten($ocean-color, 0%) solid;
 	}
 
-	.typeahead-selector {
+	ul {
 		li {
 			list-style: none;
 			margin: 1px 0;

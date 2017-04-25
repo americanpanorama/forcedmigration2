@@ -3,6 +3,8 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Typeahead } from 'react-typeahead';
 
+import SearchResult from './SearchResultComponent.jsx';
+
 import DataStore from '../stores/DataStore.js';
 import DimensionsStore from '../stores/DimensionsStore.js';
 
@@ -22,7 +24,8 @@ export default class Search extends React.Component {
           placeholder='Search by location'
           filterOption='searchName'
           displayOption='displayName'
-          onOptionSelected={ c => this.props.onSelected(c.visits.map(v => v.cartodb_id)) }
+          onOptionSelected={ this.props.onSelected }
+          customListComponent={ SearchResult }
           maxVisible={ 16 }
           style={ DimensionsStore.getSearchInnerStyle() }
         />

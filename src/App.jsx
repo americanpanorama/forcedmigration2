@@ -18,10 +18,12 @@ import AboutLink from './components/AboutLinkComponent.jsx';
 import DorlingLegend from './components/DorlingLegendComponent.jsx';
 import IntroModal from './components/IntroModalComponent.jsx';
 import Search from './components/SearchComponent.jsx';
+import Navigation from './components/PanNavComponent.jsx';
 
 import DataStore from './stores/DataStore';
 import DimensionsStore from './stores/DimensionsStore';
 import HashManager from './stores/HashManager';
+import panoramaNavData from '../data/panorama-nav.json';
 
 // main app container
 class App extends React.Component {
@@ -31,11 +33,13 @@ class App extends React.Component {
 
     this.state = {
       about: (HashManager.getState()['about']) ? true : false,
-      showIntroModal: true
+      showIntroModal: true,
+      transitioning: false,
+      show_panorama_menu: false
     };
 
     // bind handlers
-    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover', 'onMapPointClick', 'onMapPointOut', 'onViewAbout', 'onDismissIntroModal', 'onSearchSelected'];
+    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover', 'onMapPointClick', 'onMapPointOut', 'onViewAbout', 'onDismissIntroModal', 'onSearchSelected','onPanoramaMenuClick'];
     handlers.map(handler => { this[handler] = this[handler].bind(this); });
   }
 
@@ -58,6 +62,10 @@ class App extends React.Component {
   storeChanged() { this.setState({}); }
 
   onOfficeholderSelected(e) {
+    if (this.state.transitioning) {
+      return;
+    }
+
     let office, id;
     if (e.target.id == 'president' || e.target.id == 'sos') {
       office = e.target.id;
@@ -70,7 +78,11 @@ class App extends React.Component {
     }
 
     AppActions.officeholderSelected(id, office);
-    this.setState({ about: false });
+    setTimeout(() => this.setState({ transitioning: false}), 800);
+    this.setState({ 
+      about: false,
+      transitioning: true
+    });
   }
 
   onMapPointHover(e) { 
@@ -98,6 +110,8 @@ class App extends React.Component {
   onSearchSelected(ids) { AppActions.visitsSelected(ids); }
 
   onViewAbout() { this.setState({ about: !this.state.about }); }
+
+  onPanoramaMenuClick() { this.setState({ show_panorama_menu: !this.state.show_panorama_menu }); }
 
   onDismissIntroModal (persist) {
     if (persist) {
@@ -138,6 +152,17 @@ class App extends React.Component {
     return (
       <div>
 
+        <Navigation 
+          show_menu={ this.state.show_panorama_menu } 
+          on_hamburger_click={ this.onPanoramaMenuClick } 
+          nav_data={ panoramaNavData.filter((item, i) => item.url.indexOf('executive-abroad') === -1) } 
+          links={ [
+            { name: 'Digital Scholarship Lab', url: '//dsl.richmond.edu' },
+            { name: 'University of Richmond', url: '//www.richmond.edu' }
+          ] }
+          link_separator=', '
+        />
+
         <TheMap 
           onClick={ this.onMapPointClick }
           onHover={ this.onMapPointHover } 
@@ -166,7 +191,7 @@ class App extends React.Component {
 
         <DorlingLegend />
 
-        { !this.state.showIntroModal ? <IntroModal onDismiss={ this.onDismissIntroModal } /> : '' }
+        { this.state.showIntroModal ? <IntroModal onDismiss={ this.onDismissIntroModal } /> : '' }
 
       </div>
     );

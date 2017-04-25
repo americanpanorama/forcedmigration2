@@ -282,6 +282,17 @@ const DimensionsStore = {
     return data;
   },
 
+
+
+  getHamburgerStyle() {
+    return {
+      position: 'fixed',
+      top: this.getTermWidth(),
+      left: window.innerWidth / 2 - this.getWidthHeight() / 2 + this.getTermWidth()
+    };
+  }
+
+
 };
 
 // Mixin EventEmitter functionality
