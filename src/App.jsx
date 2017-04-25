@@ -33,7 +33,7 @@ class App extends React.Component {
 
     this.state = {
       about: (HashManager.getState()['about']) ? true : false,
-      showIntroModal: true,
+      showIntroModal: window.localStorage.getItem('hasViewedIntroModal-executiveabroad') !== 'true',
       transitioning: false,
       show_panorama_menu: false
     };
