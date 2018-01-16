@@ -3,11 +3,13 @@ import AppDispatcher from './AppDispatcher';
 export const AppActionTypes = {
 
   parseData: 'parseData',
+  loadInitialData: 'loadInitialData',
   storeChanged: 'storeChanged',
   officeholderSelected: 'officeholderSelected',
   visitsSelected: 'visitsSelected',
   visitsInspected: 'visitsInspected',
-  windowResized: 'windowResized'
+  windowResized: 'windowResized',
+  mapMoved: 'mapMoved',
 
 };
 
@@ -21,6 +23,14 @@ export const AppActions = {
       visits: visits,
       lat: lat,
       lng: lng
+    });
+  },
+
+  loadInitialData: (state, hashState) => {
+    AppDispatcher.dispatch({
+      type: AppActionTypes.loadInitialData,
+      state: state,
+      hashState: hashState
     });
   },
 
@@ -50,6 +60,19 @@ export const AppActions = {
     AppDispatcher.dispatch({
       type: AppActionTypes.windowResized
     });
-  }
+  },
+
+  /**
+   * Dispatch action when map is zoomed or panned.
+   * @param {Object} mapState   { zoom, center: { lat, lng } }
+   */
+  mapMoved: (x,y,z) => {
+    AppDispatcher.dispatch({
+      type: AppActionTypes.mapMoved,
+      x: x,
+      y: y,
+      z: z
+    });
+  },
 
 };

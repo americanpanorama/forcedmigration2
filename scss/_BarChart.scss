@@ -1,0 +1,101 @@
+.barchart {
+  position:relative;
+  overflow:hidden;
+  margin-bottom:20px;
+
+  text {
+    font-family: sans-serif;
+    font-size: 10px;
+    fill: #666;
+
+    &.state {
+      text-anchor: end;
+      font-size: 12px;
+    }
+
+    &.outmigrations {
+      text-anchor: end;
+    }
+
+
+
+    &.net {
+      font-weight: bold;
+      
+      &.in {
+        fill: $colorDarkRed;
+      } 
+      &.out {
+        fill: $colorLightTeal;
+      } 
+    }
+  }
+
+  rect {
+    &.inmigrations {
+      fill: $colorDarkRed;
+    }
+    &.outmigrations {
+      fill: $colorLightTeal;
+    }
+  }
+
+  line {
+    stroke-width: 1px;
+    stroke: #ddd;
+  }
+  circle {
+    stroke: #333;
+  }
+  h2 {
+    margin-bottom: 0;
+    text-align: center;
+  }
+  svg {
+    margin-left: 0;
+  }
+  p {
+    text-align: center;
+  }
+  .row {
+    padding:0;
+    cursor:pointer;
+
+    &.selected {
+      font-weight:bolder;
+    }
+  }
+
+  .label {
+    position: absolute;
+  }
+
+  &.state-selected {
+    .row {
+      opacity:.3;
+      &.selected {
+        padding:3px 0;
+        font-weight:bolder;
+
+
+        opacity:1;
+
+        text {
+
+        }
+      }
+    }
+  }
+}
+
+.diverging-chart-key {
+  text-align: center;
+
+  span {
+    font-size: 12px;
+  }
+
+  span + span {
+    margin-left: 10px;
+  }
+}

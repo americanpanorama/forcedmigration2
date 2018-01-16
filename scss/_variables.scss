@@ -1,34 +1,47 @@
-// sizes
-// (be sure to copy any changes to App.jsx#computeComponentDimensions)
-$container-padding: 20px;
-$header-height: 90px;
-$bottom-row-height-short: 230px;
-$bottom-row-height-tall: 310px;
+//
+// Spacing
+//
+$paddingSmall:10px;
+$padding:15px;
 
-// breakpoints
-$breakpoint-width-narrow: 750px;
-$breakpoint-width-wide: 1280px;
+//
+// Colors
+//
+$colorDarkRed: #AC3712;
+$colorLightRed: #AC3712;
 
-// colors
-$background-color: #111133;
-$land-color: #111133;
-$ocean-color: lighten(#446, 0%);  //lighten(#03104F, 15%);
-$modal-overlay-color: rgba(51, 51, 51, 0.25);
-$text-color: mix(#F6FEDB, #eee);
-$text-link-color: #207a9e;
-$selected-color: #F0F757;
-$basemap-color: #666;
-$term-color: #555;
-$term-outline-color: #666699;
+$colorDarkTeal: #2E5E66;
+$colorLightTeal: #50a5b2;
 
+$colorDarkBlue: #154784;
 
-$selected-term-color: #ADC698;
-$westerneurope-color: lighten(orange, 20%);
-$easterneurope-color: lighten(#722f37, 40%);
-$eastasia-color: #2ca02c;
-$middleeast-color: #a387be;
-$latinamerica-color: #7EC0EE; 
-$africa-color: #ef33a2;
-$southasia-color: #b98a6f;
-$oceania-color: lighten(#db4f54, 20%);
-$canada-color: #bcbd22;
+$colorBrown: #4C3A27;
+
+$colorDarkCreme: #E1D1B7;
+$colorLightCreme: #EFE0CA;
+
+$colorGrey: #292D29;
+$colorLightGrey: #b3b3b3;
+
+$colorLightestGreen: #DCDFDB;
+$colorLighterGreen: #E9EDEC;
+$colorLightGreen: #91a3a0;
+$colorDarkGreen: #6b8681;
+$colorDarkerGreen: #3a3f3a;
+
+$colorCotton: rgb(146,131,106);
+$colorSugar: rgb(118,138,102);
+$colorCottonTransparent: rgba(146,131,106,.7);
+$colorSugarTransparent: rgba(118,138,102, .7);
+
+//
+// Fonts
+//
+$font-kameron: 'Kameron', serif;
+$font-ptserif: 'PT Serif', serif;
+$font-sans: Helvetica, Arial, sans-serif;
+
+//
+// Flash and Zazz
+//
+$transitionDuration: 1s;

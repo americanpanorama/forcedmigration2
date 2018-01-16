@@ -33,7 +33,7 @@
 	},
 	{
 		"title"         : "Mapping Inequality",
-		"url"           : "http://dsl.richmond.edu/panorama/holc/",
+		"url"           : "http://dsl.richmond.edu/panorama/redlining/",
 		"screenshot"    : "http://dsl.richmond.edu/panorama/static/images/holc-img.png",
 		"start_year"    : 1800,
 		"end_year"      : 1860,

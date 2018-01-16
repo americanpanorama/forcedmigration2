@@ -1,0 +1,47 @@
+interstates_55:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1955
+
+interstates_56:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1956
+
+interstates_57:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1957
+
+interstates_58:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1958
+
+interstates_59:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1959
+
+interstates_60:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1960
+
+interstates_61:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1961
+
+interstates_62:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1962
+
+interstates_63:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1963
+
+interstates_64:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1964
+
+interstates_65:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1965
+
+interstates_66:
+  sql: |
+    SELECT * FROM interstate_detailed where year_open <= 1966

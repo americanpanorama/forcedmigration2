@@ -1,0 +1,193 @@
+@import "vendor/leaflet";
+.population-map-container {
+  position:relative;
+  width: 100%;
+  padding: 0 $padding;
+}
+.component.population-map {
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  .label-layer {
+    pointer-events:none;
+    opacity:.9;
+  }
+
+  .label-layer {
+    opacity: 0.5 !important;
+  }
+
+  .leaflet-container {
+    width:100%;
+    height:100%;
+    border:solid 1px $colorLightGrey;
+    background-color: #b1b4b4;
+  }
+
+  .narrative-circle {
+    background-color: transparent;
+    width: 8px;
+    height: 10px;
+    margin-left: -4px;
+    margin-top: -10px;
+    background-size: cover;
+    background-image: url('./static/narrative-icon.svg');
+    cursor: pointer;
+
+    $sizeMultiplier: 2;
+
+    // scale up the markers at zoom level 7 and above
+    @for $zoom from 7 through 20 {
+      &.zoom#{$zoom} {
+        width: 8px + ($zoom - 6) * 6;
+        height: 10px + ($zoom - 6) * 7.5;
+        margin-left: -4px + ($zoom - 6) * 6;
+        margin-top: -10px + ($zoom - 6) * 7.5;
+      }
+    }
+
+    &.selected{
+      background-image: url('./static/narrative-icon-selected.svg');
+      width: 30px;
+      height: 32px;
+      margin-left: -15px;
+      margin-top: -32px;
+      
+      @for $zoom from 7 through 20 {
+        &.zoom#{$zoom} {
+          width: 30px + ($zoom - 6) * 7.5;
+          height: 32px + ($zoom - 6) * 8;
+          margin-left: -15px + ($zoom - 6) * 7.5;
+          margin-top: -32px + ($zoom - 6) * 8;
+        }
+      }
+
+    }
+
+  }
+
+  .crop-sugar {
+    fill:$colorSugarTransparent;
+    fill-opacity:1;
+    stroke:none;
+  }
+
+  .crop-cotton {
+    fill:$colorCottonTransparent;
+    fill-opacity:1;
+    stroke:none;
+  }
+
+  .places-states {
+    fill:transparent;
+    stroke:rgba(150,150,150,1);
+    stroke-opacity:1;
+    stroke-width:0.5px;
+    cursor:pointer;
+
+    &.selected {
+      stroke:rgba(0,0,0,.7);
+      stroke-width: 2px;
+      &.hide {
+        display:none;
+      }
+    }
+  }
+
+  .ecoregion {
+    fill:transparent;
+    stroke:rgba(0,0,0,1);
+    stroke-opacity:1;
+    stroke-width:1.5px;
+  }
+
+  .places-county {
+    //fill:transparent;
+    stroke:rgba(0,0,0,0);
+    cursor:pointer;
+    stroke-width:0.75px;
+    stroke-opacity:.7;
+
+    &.geographic-state-selected {
+      stroke: rgba(0, 0, 0, .7);
+    }
+
+    &.selected {
+      stroke-width:6px;
+      stroke:rgba(160,32,240,1);
+    }
+
+    &.geographic-state-unselected {
+      fill:transparent;
+      stroke:rgba(0,0,0,0);
+    }
+
+  }
+
+  .narrative-line {
+    fill:none;
+    stroke:$colorGrey;
+    fill-opacity:1;
+  }
+
+}
+
+.tab-panel {
+  .population-map {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0 10px;
+  }
+}
+
+
+.leaflet-map-key {
+  position: relative;
+  margin: 0 0 5px 10px !important;
+  background-color: $colorLighterGreen;
+  padding: 5px;
+  font-size: 12px;
+  border-radius: 5px;
+
+
+  span, img {
+    vertical-align: middle;
+  }
+
+  span {
+    margin: 0px;
+    display: inline-block;
+    
+    $label-width: 80px;
+
+    &.out{
+      text-align: right;
+      width: $label-width;
+    }
+    &.in{
+      text-align: left;
+      width: $label-width;
+    }
+    &.no-net {
+      width: 120px;
+      text-align: center;
+    }
+    &.scale {
+       font-size: .85em;
+    }
+  }
+
+  img {
+    width: 140px;
+    height: 15px;
+    margin: 0 -10px;
+
+    &.choropleth {
+      width: 100px;
+      margin: 0 10px;
+    }
+  }
+}

@@ -1,18 +1,13 @@
-// lib styles
-@import "lib/skeleton";
-@import "lib/normalize";
 
-// application-wide styles
+
+//
+// Pull in the app styles
+//
+
+@import "vendor/normalize";
+
 @import "variables";
-@import "layout";
-@import "typography";
 
-// component styles
-@import "components/mapComponent.scss";
-@import "components/timelineComponent.scss";
-@import "components/aboutComponent.scss";
-@import "components/detailsComponent.scss";
-@import "components/introModalComponent.scss";
-@import "components/steamgraphComponent.scss";
-@import "components/searchComponent.scss";
-@import "components/panNavComponent.scss";
+@import "_app";
+@import "Map";
+@import "BarChart";

@@ -16,6 +16,7 @@
     "url": "git+https://github.com/americanpanorama/executiveabroad.git"
   },
   "dependencies": {
+    "cartodb-client": "stamen/cartodb-client",
     "d3": "^3.5.6",
     "react": "^15.4.1",
     "react-addons-transition-group": "^15.4.1",

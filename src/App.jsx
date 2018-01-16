@@ -1,5 +1,5 @@
 // import node modules
-import "babel-polyfill";
+//import "babel-polyfill";
 import d3 from 'd3';
 import * as React from 'react';
 import ReactTransitionGroup from 'react-addons-transition-group';
@@ -8,22 +8,18 @@ import ReactTransitionGroup from 'react-addons-transition-group';
 import { AppActions, AppActionTypes } from './utils/AppActionCreator';
 import AppDispatcher from './utils/AppDispatcher';
 
-import TheMap from './components/MapComponent.jsx';
-import Details from './components/DetailsComponent.jsx';
-import Timeline from './components/TimelineComponent.jsx';
-import Steamgraph from './components/SteamgraphComponent.jsx';
-import Title from './components/TitleComponent.jsx';
-import About from './components/AboutComponent.jsx';
-import AboutLink from './components/AboutLinkComponent.jsx';
-import DorlingLegend from './components/DorlingLegendComponent.jsx';
-import IntroModal from './components/IntroModalComponent.jsx';
-import Search from './components/SearchComponent.jsx';
-import Navigation from './components/PanNavComponent.jsx';
 
-import DataStore from './stores/DataStore';
+
+import PlacesStore from './stores/Places';
+import GeographyStore from './stores/Geography';
 import DimensionsStore from './stores/DimensionsStore';
 import HashManager from './stores/HashManager';
 import panoramaNavData from '../data/panorama-nav.json';
+
+import Bubble from './components/Bubble.jsx';
+import Polygon from './components/Polygon.jsx';
+import BarChart from './components/BarChart.jsx';
+import ZoomControls from './components/ZoomControlsComponent.jsx';
 
 // main app container
 class App extends React.Component {
@@ -35,163 +31,232 @@ class App extends React.Component {
       about: (HashManager.getState()['about']) ? true : false,
       showIntroModal: window.localStorage.getItem('hasViewedIntroModal-executiveabroad') !== 'true',
       transitioning: false,
-      show_panorama_menu: false
+      show_panorama_menu: false,
+      selectedDecade: HashManager.getState().decade || 1820,
     };
 
     // bind handlers
-    const handlers = ['onWindowResize', 'onOfficeholderSelected', 'storeChanged', 'onMapPointHover', 'onMapPointClick', 'onMapPointOut', 'onViewAbout', 'onDismissIntroModal', 'onSearchSelected','onPanoramaMenuClick'];
+    const handlers = ['storeChanged', 'handleMouseUp', 'handleMouseDown', 'handleMouseMove','onTimelineDecadeSelect', 'onZoomIn', 'zoomOut', 'resetView'];
     handlers.map(handler => { this[handler] = this[handler].bind(this); });
   }
 
   componentWillMount () { 
-    const theHash = HashManager.getState(),
-      office = (Object.keys(theHash).indexOf('sos') !== -1) ? 'sos' : 'president',
-      id = (theHash[office]) ? (HashManager.getState()[office]) : null,
-      visits = (theHash.visit) ? [theHash.visit] : [];
-    AppActions.parseData(id, office, visits, parseFloat(theHash.lat), parseFloat(theHash.lng)); 
+    AppActions.loadInitialData(this.state, HashManager.getState()); 
+    DimensionsStore.calculate();
   }
 
   componentDidMount () {
-    window.addEventListener('resize', this.onWindowResize);
-    DataStore.addListener(AppActionTypes.storeChanged, this.storeChanged);
+    PlacesStore.addListener(AppActionTypes.storeChanged, this.storeChanged);
     DimensionsStore.addListener(AppActionTypes.storeChanged, this.storeChanged);
+    GeographyStore.addListener(AppActionTypes.storeChanged, this.storeChanged);
+
+    // recalculate dimensions now that everything's mounted in the DOM
+    AppActions.windowResized();
+    PlacesStore.parseHexesProjected();
+    PlacesStore.parseStateTotals();
   }
 
   componentDidUpdate () { this.changeHash(); }
 
   storeChanged() { this.setState({}); }
 
-  onOfficeholderSelected(e) {
-    if (this.state.transitioning) {
-      return;
-    }
-
-    let office, id;
-    if (e.target.id == 'president' || e.target.id == 'sos') {
-      office = e.target.id;
-      id = null;
-    } else {
-      [office, id] = e.target.id.split('-');
-      if (id == DataStore.getSelectedId() && office == DataStore.getSelectedOffice()) {
-        id = null;
-      }
-    }
-
-    AppActions.officeholderSelected(id, office);
-    setTimeout(() => this.setState({ transitioning: false}), 800);
-    this.setState({ 
-      about: false,
-      transitioning: true
-    });
-  }
-
-  onMapPointHover(e) { 
-    let ids = e.target.id.split('-').map(id => parseInt(id));
-    // only hover if it's not selected
-    AppActions.visitsInspected(ids);
-    if (!DataStore.getSelectedLocationIds().every((v,i)=> v === ids[i])) {
-      //AppActions.visitsInspected(ids); 
-    }
-    this.setState({ about: false });
-  }
-
-  onMapPointOut() { AppActions.visitsInspected([]); }
-
-  onMapPointClick(e) { 
-    this.setState({ about: false });
-    let ids = (e.target.id) ? e.target.id.split('-').map(id => parseInt(id)) : [];
-    // off if the selected location is clicked again
-    if (ids.every((v,i)=> v === DataStore.getSelectedLocationIds()[i])) {
-      ids = [];
-    }
-    AppActions.visitsSelected(ids); 
-  }
-
-  onSearchSelected(ids) { AppActions.visitsSelected(ids); }
-
-  onViewAbout() { this.setState({ about: !this.state.about }); }
-
-  onPanoramaMenuClick() { this.setState({ show_panorama_menu: !this.state.show_panorama_menu }); }
-
-  onDismissIntroModal (persist) {
-    if (persist) {
-      window.localStorage.setItem('hasViewedIntroModal-executiveabroad', 'true');
-    }
-    this.setState({
-      showIntroModal: false
-    });
-  }
 
 
   onWindowResize() { AppActions.windowResized(); }
 
-  changeHash () {
-    let hash = {},
-      office = DataStore.getSelectedOffice();
-    hash.president = (office == 'president') ? DataStore.getSelectedId() : null;
-    hash.sos = (office == 'sos') ? DataStore.getSelectedId() : null;
-    if (DataStore.hasSelectedLocation()) {
-      if (DataStore.getSelectedLocationIds().length == 1) {
-        hash.lat = null;
-        hash.lng = null;
-        hash.visit = DataStore.getSelectedLocationIds();
-      } else {
-        hash.lat = DataStore.getLatLng(DataStore.getSelectedLocationIds()[0])[1];
-        hash.lng = DataStore.getLatLng(DataStore.getSelectedLocationIds()[0])[0];
-        hash.visit = null;
-      }
-    } else {
-      hash.lat = null;
-      hash.lng = null;
-      hash.visit = null;
+  onTimelineDecadeSelect(e) {
+    // TODO if county no longer exists, de-select
+    this.setState({"selectedDecade":e.target.id});
+  }
+
+  onZoomIn(event) {
+    event.preventDefault();
+    const z = Math.min(GeographyStore.getZ() * 1.62, 18),
+      centerX = (event.target.id == 'zoomInButton') ? DimensionsStore.getMapWidth()  / 2 - GeographyStore.getX() : event.nativeEvent.offsetX - GeographyStore.getX(),
+      centerY = (event.target.id == 'zoomInButton') ? DimensionsStore.getMapHeight()  / 2 - GeographyStore.getY() : event.nativeEvent.offsetY - GeographyStore.getY(),
+      x = DimensionsStore.getMapWidth()  / 2 - centerX / GeographyStore.getZ() * z,
+      y = DimensionsStore.getMapHeight()  / 2 - centerY / GeographyStore.getZ() * z;
+    AppActions.mapMoved(x,y,z);
+  }
+
+  zoomOut() {
+    const z = Math.max(GeographyStore.getZ() / 1.62, 1),
+      x = DimensionsStore.getMapWidth()  / 2 - (DimensionsStore.getMapWidth()  / 2 - GeographyStore.getX()) / GeographyStore.getZ() * z,
+      y = DimensionsStore.getMapHeight()  / 2 - (DimensionsStore.getMapHeight()  / 2 - GeographyStore.getY()) / GeographyStore.getZ() * z;
+    AppActions.mapMoved(x,y,z);
+  }
+
+  resetView() { AppActions.mapMoved(0,0,1); }
+
+
+  handleMouseUp() {
+    this.dragging = false;
+    this.coords = {};
+  }
+
+  handleMouseDown(e) {
+    this.dragging = true;
+    //Set coords
+    this.coords = {x: e.pageX, y:e.pageY};
+  }
+
+  handleMouseMove(e) {
+    //If we are dragging
+    if (this.dragging) {
+      e.preventDefault();
+      //Get mouse change differential
+      var xDiff = this.coords.x - e.pageX,
+        yDiff = this.coords.y - e.pageY;
+      //Update to our new coordinates
+      this.coords.x = e.pageX;
+      this.coords.y = e.pageY;
+      //Adjust our x,y based upon the x/y diff from before
+      var x = GeographyStore.getX() - xDiff,       
+        y = GeographyStore.getY() - yDiff,
+        z = GeographyStore.getZ();
+      //Re-render
+      AppActions.mapMoved(x,y,z); 
     }
-    HashManager.updateHash(hash);
+  }
+
+  changeHash () {
+    const vizState = { 
+      decade: this.state.selectedDecade,
+      view: [GeographyStore.getX(), GeographyStore.getY(), GeographyStore.getZ()].join('/'),
+    };
+    // if (CitiesStore.getSelectedCity() && GeographyStore.getLatLngZoom().lat) {
+    //   vizState.loc = { 
+    //     zoom: GeographyStore.getLatLngZoom().zoom, 
+    //     center: [GeographyStore.getLatLngZoom().lat, GeographyStore.getLatLngZoom().lng] 
+    //   };
+    // } else {
+    //   vizState.loc = null;
+    // }
+
+    HashManager.updateHash(vizState);
   }
 
   render () {
+    //GeographyStore.simplify_union();
     return (
-      <div>
+      <div className='richmondatlas-forcedmigraton'>
+        <article className="content">
+          <h1>The forced migration of enslaved people in the United States 1810 - 1860</h1>
+          <div className="article-content-wrapper">
+           <div className="article-content-inner">
+              <div className="population-map-container" style={{height: DimensionsStore.getMapHeight() + 'px'}}>
+                  <svg 
+                    width={DimensionsStore.getMapWidth()}
+                    height={DimensionsStore.getMapHeight()}
+                    className='theMap'
+                  >
+                    <g 
+                      width={ DimensionsStore.getMapWidth() }  
+                      height={ DimensionsStore.getMapHeight() }
+                      className='ussvg'
+                      onDoubleClick={ this.onZoomIn }
+                      onMouseUp={this.handleMouseUp }
+                      onMouseDown={this.handleMouseDown }
+                      onMouseMove={this.handleMouseMove }
+                      ref='mapChart'
+                      transform={"translate("+GeographyStore.getX()+","+GeographyStore.getY()+")scale(" + GeographyStore.getZ() +")"}
+                    >
+                      { GeographyStore.getOceanPolygons().map((polygon,i) => {
+                        return (
+                          <path
+                            key={ 'ocean' + i }
+                            d={ GeographyStore.getPath(polygon.geometry) }
+                            strokeWidth={ 0.2 } 
+                            className='ocean'
+                          />
+                        );
+                      })}
 
-        <Navigation 
-          show_menu={ this.state.show_panorama_menu } 
-          on_hamburger_click={ this.onPanoramaMenuClick } 
-          nav_data={ panoramaNavData.filter((item, i) => item.url.indexOf('executive-abroad') === -1) } 
-          links={ [
-            { name: 'Digital Scholarship Lab', url: '//dsl.richmond.edu' },
-            { name: 'University of Richmond', url: '//www.richmond.edu' }
-          ] }
-          link_separator=', '
-        />
+                      { GeographyStore.getStateBoundariesForDecade(this.state.selectedDecade).map((polygon,i) => {
+                        return (
+                          <path
+                            key={ polygon.properties.id }
+                            d={ GeographyStore.getPath(polygon.geometry) }
+                            stroke='grey'
+                            strokeOpacity={0.5}
+                            fill='transparent'
+                            strokeWidth={ 0.5 } 
+                          />
+                        );
+                      })}
 
-        <TheMap 
-          onClick={ this.onMapPointClick }
-          onHover={ this.onMapPointHover } 
-          onMouseLeave={ this.onMapPointOut }
-        />
-       
-        { (DataStore.hasVisibleLocation()) ? 
-          <Details onSelectDestination={ this.onMapPointClick } /> :  
-          <Search onSelected={ this.onSearchSelected } />
-        }
+                      { GeographyStore.getCountyUnion().map((polygon,i) => {
+                        let d = GeographyStore.getPath(polygon.geometry);
+                        if (true || !d.includes('NaN')) {
+                          return (
+                            <Polygon
+                              key={ 'countyUnion' + i }
+                              d={ d }
+                              color={ (polygon.properties[this.state.selectedDecade].ipsm > 0) ? '#AC3712' : '#2E5E66' }
+                              opacity={ Math.abs(polygon.properties[this.state.selectedDecade].ipsm) / 10 }
+                            />
+                          );
+                        }
+                      })}
 
-        { (this.state.about) ? <About onClick={ this.onViewAbout }/> : '' } 
 
-        <ReactTransitionGroup component='g'>
-          <Steamgraph 
-            onClick={ this.onMapPointClick }
-            onHover={ this.onMapPointHover } 
-            onMouseLeave={ this.onMapPointOut }
-          />
-          <Timeline onOfficeholderSelected = { this.onOfficeholderSelected } />
-        </ReactTransitionGroup>
+                      { (false && PlacesStore.hexesParsed) ?
+                        <g>
+                          { PlacesStore.getHexesProjected().map(b => {
+                            return (
+                              <Bubble
+                                { ...b }
+                                r={ DimensionsStore.getBubbleRadius(b['mig_' + this.state.selectedDecade]) }
+                                color={(b['mig_' + this.state.selectedDecade] > 0) ? '#AC3712' : '#50a5b2'}
+                                key={ b.id }
+                                z={ GeographyStore.getZ() }
+                              />
+                            );
+                          })}
+                        </g> : ''
+                      }
+                    </g>
 
-        <Title />
+                   
+                  </svg>
 
-        <AboutLink onClick={ this.onViewAbout } />
+                  <ZoomControls
+                    onZoomIn={ this.onZoomIn }
+                    onZoomOut={ this.zoomOut }
+                    resetView={ this.resetView }
+                  />
+              </div>
 
-        <DorlingLegend />
+              <div className="population-timeline-container">
+                <ul>
+                  <li onClick={this.onTimelineDecadeSelect} id={1820}>1810s</li>
+                  <li onClick={this.onTimelineDecadeSelect} id={1830}>1820s</li>
+                  <li onClick={this.onTimelineDecadeSelect} id={1840}>1830s</li>
+                  <li onClick={this.onTimelineDecadeSelect} id={1850}>1840s</li>
+                  <li onClick={this.onTimelineDecadeSelect} id={1860}>1850s</li>
 
-        { this.state.showIntroModal ? <IntroModal onDismiss={ this.onDismissIntroModal } /> : '' }
+                </ul>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside className="sidebar">
+          <div className='component selected-decade-display'><div><span className="little-the">the</span><span>{ this.state.selectedDecade - 10 }s</span></div></div>
+          <div className="">
+
+            { (PlacesStore.stateTotalsParsed()) ?
+              <BarChart
+                yearData={ PlacesStore.getStateTotalsForDecade([this.state.selectedDecade]) }
+                height={ PlacesStore.getStateTotalsForDecade([this.state.selectedDecade]).length * 20 + 42 }
+
+              /> : ''
+            }
+
+          </div>
+        </aside>
+
+           
 
       </div>
     );

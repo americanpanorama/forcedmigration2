@@ -1,0 +1,308 @@
+import { EventEmitter } from 'events';
+import AppDispatcher from '../utils/AppDispatcher';
+import { AppActionTypes } from '../utils/AppActionCreator';
+import CartoDBLoader from '../utils/CartoDBLoader';
+import USTopoJson from '../../data/us.json';
+import gp from 'geojson-precision';
+import OceansJson from '../../data/oceans.json';
+import States from '../../data/states.json';
+import Counties from '../../data/counties.json';
+import CountyUnion from '../../data/county_union.json';
+import * as topojson from 'topojson';
+import * as d3 from 'd3';
+
+import DimensionsStore from './DimensionsStore';
+
+const GeographyStore = {
+
+  data: {
+    x: 0,
+    y: 0,
+    z: 1,
+    loaded: false,
+    lower48Geojson: {},
+    lat: null,
+    lng: null,
+    zoom: 14,
+    theMap: null
+  },
+
+  dataLoader: CartoDBLoader,
+
+  // SETTERS
+
+  setTheMap: function (theMap) {
+    this.data.theMap = theMap;
+    this.emit(AppActionTypes.storeChanged);
+  },
+
+  setView(lat,lng,zoom) {
+    this.data.lat = lat;
+    this.data.lng = lng;
+    this.data.zoom = zoom;
+    this.emit(AppActionTypes.storeChanged);
+  },
+
+  setViewFromBounds(city_id) {
+    this.data.lat = (CitiesStore.getCityData(city_id).center) ? CitiesStore.getCityData(city_id).center[0] : CitiesStore.getCityData(city_id).lat;
+    this.data.lng = (CitiesStore.getCityData(city_id).center) ? CitiesStore.getCityData(city_id).center[1] : CitiesStore.getCityData(city_id).lng;
+    this.data.zoom = (CitiesStore.getCityData(city_id).boundingBox) ? Math.min(this.data.theMap.getBoundsZoom(CitiesStore.getCityData(city_id).boundingBox), 16) : 14;
+    this.emit(AppActionTypes.storeChanged);
+  },
+
+  setViewFromProjectBounds(project_id) {
+    this.data.lat = CitiesStore.getProjectCenter(project_id)[0];
+    this.data.lng = CitiesStore.getProjectCenter(project_id)[1];
+    this.data.zoom = (CitiesStore.getProjectBoundingBox(project_id)) ? Math.min(this.data.theMap.getBoundsZoom(CitiesStore.getProjectBoundingBox(project_id)) - 2, 16) : 14;
+    this.emit(AppActionTypes.storeChanged);
+  },
+
+  setXYZ: function(x,y,z) {
+    this.data.x = Math.round(x * 100) / 100;
+    this.data.y = Math.round(y * 100) / 100;
+    this.data.z = Math.round(z * 100) / 100;
+
+    this.emit(AppActionTypes.storeChanged);
+  },
+
+  // GETTERS
+
+  getBoundingBox: function() {
+    const topLeftX = (this.getX() * -1) / (DimensionsStore.getNationalMapWidth() * this.getZ()) * DimensionsStore.getNationalMapWidth(),
+      topLeftY = (this.getY() * -1) / (DimensionsStore.getNationalMapHeight() * this.getZ()) * DimensionsStore.getNationalMapHeight(),
+      bottomRightX = topLeftX + DimensionsStore.getNationalMapWidth() / this.getZ(),
+      bottomRightY = topLeftY + DimensionsStore.getNationalMapHeight() / this.getZ();
+    return [[topLeftX, topLeftY], [bottomRightX, bottomRightY]];
+
+    return [this.getProjection().invert([topLeftX, topLeftY]), this.getProjection().invert([bottomRightX, bottomRightY])];
+  },
+
+  getBoundsForState: function(id) {
+    let geojson = this.getStateGeojson(id);
+    return this.getPathFunction().bounds(geojson.geometry);
+  },
+
+  getCentroidForState: function(id) {
+    let geojson = this.getStateGeojson(id);
+    return this.getPathFunction().centroid(geojson.geometry);
+  },
+
+  getLatLngZoom: function() {
+    return {
+      lat: this.data.lat,
+      lng: this.data.lng,
+      zoom: this.data.zoom
+    };
+  },
+
+  getOceanPolygons: function() { return OceansJson.features; },
+
+  getStateBoundariesForDecade(decade) { return States.features.filter(s => s.properties.start_n < parseInt(decade) * 10000 && s.properties.end_n > parseInt(decade) * 10000); },
+
+  getCountyBoundariesForDecade(decade) { return Counties.features.filter(c => parseInt(c.properties.year) == parseInt(decade)); },
+
+  getCountyUnion() { return CountyUnion.features; },
+
+
+  updateLOC: function() {
+    const center = this.getTheMap().getCenter();
+    this.data.zoom = this.getTheMap().getZoom();
+    this.data.lat = center.lat;
+    this.data.lng = center.lng;
+    this.emit(AppActionTypes.storeChanged);
+  },
+
+  getLower48: function() {
+    return USTopoJson;
+  },
+
+  getStatesGeojson: function() { return topojson.feature(USTopoJson, USTopoJson.objects.states).features; },
+
+  getStateGeojson: function(id) { return this.getStatesGeojson().filter(d => d.id == id)[0]; },
+
+  getPathFunction: function() { return d3.geo.path().projection(this.getProjection()); },
+
+  getPath: function(g) { return this.getPathFunction()(g); },
+
+  getTheMap: function() { return this.data.theMap; },
+
+  getVisibleBounds: function() { return this.data.theMap.getBounds(); },
+
+  getProjection: function() {
+    return d3.geo.azimuthalEqualArea()
+      .scale(DimensionsStore.getMapScale())
+      .rotate([-100, 45].map(latlng => latlng * -1))
+      .center([11, -10])
+      //.clipAngle(180 - 1e-3)
+      .translate([DimensionsStore.getMapWidth() / 2, DimensionsStore.getMapHeight() / 2])
+      .precision(0.5);
+
+
+    // this.albersUsaPr()
+    //   .scale(DimensionsStore.getMapScale())
+    //   .translate([DimensionsStore.getNationalMapWidth()/2, DimensionsStore.getNationalMapHeight()*(12.5/31)]);
+  },
+
+  getX: function() { return this.data.x; },
+
+  getY: function() { return this.data.y; },
+
+  getZ: function() { return this.data.z; },
+
+  getXYZ: function() { 
+    return { 
+      x: this.getX(),
+      y: this.getY(),
+      z: this.getZ()
+    };
+  },
+
+  projected: function(latLng) { return this.getProjection()(latLng); },
+
+  projectedX: function(latLng) { return this.getProjection()(latLng)[0]; },
+
+  projectedY: function(latLng) { return this.getProjection()(latLng)[1]; },
+
+  simplify_union() {
+    let organizedFeatures = CountyUnion.features.map(f => {
+      let organizedProperties = {
+        1820: {
+          id: f.properties.cartodb_id,
+          ipsm: Math.round(f.properties.inmigrat_1 * 1000) / 1000,
+        },
+        1830: {
+          id: f.properties.cartodb__1,
+          ipsm: Math.round(f.properties.inmigrat_9 * 1000) / 1000,
+        },
+        1840: {
+          id: f.properties.cartodb__2,
+          ipsm: Math.round(f.properties.inmigrat_3 * 1000) / 1000,
+        },
+        1850: {
+          id: f.properties.cartodb__3,
+          ipsm: Math.round(f.properties.inmigrat_5 * 1000) / 1000,
+        },
+        1860: {
+          id: f.properties.cartodb__4,
+          ipsm: Math.round(f.properties.inmigrat_7 * 1000) / 1000,
+        }
+      };
+      return {
+        geometry: f.geometry,
+        type: 'Feature',
+        properties: organizedProperties
+      };
+    });
+    let organized = gp.parse({
+      type: 'FeatureCollection',
+      features: organizedFeatures
+    }, 3);
+
+    console.log(organized);
+  },
+
+};
+
+// Mixin EventEmitter functionality
+Object.assign(GeographyStore, EventEmitter.prototype);
+
+// Register callback to handle all updates
+GeographyStore.dispatchToken = AppDispatcher.register((action) => {
+  switch (action.type) {
+  case AppActionTypes.loadInitialData:
+    //GeographyStore.loadInitialData(action.state);
+    const x = (action.hashState.view) ? parseFloat(action.hashState.view.split('/')[0]) : 0,
+      y = (action.hashState.view) ? parseFloat(action.hashState.view.split('/')[1]) : 0,
+      z = (action.hashState.view) ? parseFloat(action.hashState.view.split('/')[2]) : 1;
+    GeographyStore.setXYZ(x,y,z);
+    if (action.hashState.loc) {
+      GeographyStore.setView(action.hashState.loc.center[0],action.hashState.loc.center[1],action.hashState.loc.zoom);
+    }
+    // if there's a city but no loc, wait for the projects to load to calculate the bounding box 
+    else if (action.hashState.city) {
+      const waitingId = setInterval(() => {
+        if (CitiesStore.initialDataLoaded() && CitiesStore.data.citiesLoaded.length == 1 && GeographyStore.getTheMap()) {
+          clearInterval(waitingId);
+          GeographyStore.setViewFromBounds(CitiesStore.data.citiesLoaded[0]);
+        } 
+      }, 500);
+
+    }
+    
+    break;
+  case AppActionTypes.mapMoved:
+    GeographyStore.setXYZ(action.x, action.y, action.z);
+    break;
+
+  // this is to reset the zoom if moving to or from the scatterplot
+  case AppActionTypes.viewSelected:
+    if (action.value == 'scatterplot' || action.oldView == 'scatterplot') {
+      GeographyStore.setXYZ(0,0,1);
+    }
+    break;
+  case AppActionTypes.mapInitialized:
+    GeographyStore.setTheMap(action.value);
+    break;
+    
+  case AppActionTypes.citySelected:
+    if (action.value == null) {
+      //GeographyStore.setView(null,null,null);
+    } else {
+      // you have to wait for the map to set the bounds
+      const waitingId = setInterval(() => {
+        if (GeographyStore.getTheMap()) {
+          clearInterval(waitingId);
+          GeographyStore.setViewFromBounds(action.value);
+          // only reset the map if it's not already on the map
+          // if (!GeographyStore.getTheMap().getBounds().contains([CitiesStore.getCityData(action.value).lat, CitiesStore.getCityData(action.value).lng])) {
+          //   GeographyStore.setViewFromBounds(action.value);
+          // }
+        }
+      }, 500);
+    }
+
+    
+    break;
+  case AppActionTypes.cityMapMoved:
+    if (GeographyStore.getTheMap !== null) {
+      GeographyStore.updateLOC();
+    }
+    break;
+
+  case AppActionTypes.projectSelected:
+    // if the project city isn't loaded, load it
+    const city_id = CitiesStore.getCityId(action.value);
+    if (city_id && CitiesStore.getSelectedCity() !== city_id) {
+      const waitingId = setInterval(() => {
+        if (GeographyStore.getTheMap()) {
+          clearInterval(waitingId);
+          if (CitiesStore.getProjectCenter(action.value) && CitiesStore.getProjectCenter(action.value)[0]) {
+            GeographyStore.setViewFromProjectBounds(action.value);
+          } else {
+            GeographyStore.setViewFromBounds(city_id);
+          }
+          // only reset the map if it's not already on the map
+          // if (!GeographyStore.getTheMap().getBounds().contains([CitiesStore.getCityData(action.value).lat, CitiesStore.getCityData(action.value).lng])) {
+          //   GeographyStore.setViewFromBounds(action.value);
+          // }
+        }
+      }, 500);
+    }
+    // NO BREAK HERE AS YOU NEED TO EXECUTE THE FOLLOWING
+  case AppActionTypes.projectInspected:
+    if (GeographyStore.getTheMap() !== null && action.value !== null) {
+      const bb = CitiesStore.getProjectBoundingBox(action.value);
+      if (bb && !GeographyStore.getTheMap().getBounds().contains(bb)) {
+        GeographyStore.getTheMap().stop();
+        GeographyStore.getTheMap().panTo(CitiesStore.getProjectCenter(action.value), { noMoveStart: true });
+        //GeographyStore.setView(CitiesStore.getProjectCenter(action.value)[0],CitiesStore.getProjectCenter(action.value)[1],GeographyStore.getLatLngZoom().zoom);
+      }
+    }
+    break;
+  }
+  
+
+  return true;
+});
+
+export default GeographyStore;
